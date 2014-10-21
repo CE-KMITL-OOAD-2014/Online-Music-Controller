@@ -27,9 +27,8 @@ class PlaySong(Command):
 #############################----GetPlayerStatus Class----##########################
 class GetPlayerStatus():
 	"""docstring for GetPlayerStatus"""
-	__metaclass__ = ABCMeta
-    
-    @abstractmethod
+	__metaclass__ = ABCMeta    
+	@abstractmethod
 	def get_status(self) :
 		pass
 
@@ -56,30 +55,32 @@ class QueueStatus(GetPlayerStatus):
 ####################################################################################
 #############################----GetPlaylist Class----##############################
 class GetPlaylist():
-    def __init__(self):
-        self.playlist_list = Playlist[]
-    def get_playlist(self,name):
-        return self.playlist_list[0]
-    def add_playlist(self,name):
-        self.playlist_list[arr(self.playlist_list)] = Playlist(name)
-    
+	def __init__(self):
+		self.playlist_list = []
+
+	def get_playlist(self,name):
+		return self.playlist_list[0]
+
+	def add_playlist(self,name):
+		self.playlist_list[arr(self.playlist_list)] = Playlist(name)
+
 class Playlist():
-    def __init__(self,name):
-        self.playlist_name = name 
-        self.file_list = File[]
+	def __init__(self,name):
+		self.playlist_name = name 
+		self.file_list = []
     
-    def get_playlist_name(self):
-        return self.playlist_name   
+	def get_playlist_name(self):
+		return self.playlist_name   
     
-    def get_filelist(self):
-        return self.file_list
+	def get_filelist(self):
+		return self.file_list
     
-    def update_playlist(self,songs_name):
-        for song in songs_name :
-            self.file_list[len(self.file_list] = File(song)
+	def update_playlist(self,songs_name):
+		for song in songs_name :
+			self.file_list[len(self.file_list)] = File(song)
     
-    def remove(self):
-        self.close()
+	def remove(self):
+		self.close()
 
 class File():
     def __init__(self,name):
