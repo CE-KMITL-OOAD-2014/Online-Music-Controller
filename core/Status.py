@@ -10,7 +10,3 @@ class MemoryStatus(GetPlayerStatus):
 	def get_status(self,address):
 		print "get Memory status"		
 		
-class QueueStatus(GetPlayerStatus):
-	"""docstring for ControlStatus"""
-	def get_status(self,address):
-		print "get Queue status"	

@@ -14,3 +14,7 @@ if __name__ == '__main__':
 	play_song_command =  Command.PlaySong()
 	player.run_command(play_command)
 	player.run_command(play_song_command,"lalala")
+	ctrl = Status.ControlStatus()
+	mem = Status.MemoryStatus()
+	player.player_status(ctrl)
+	player.player_status(mem)
