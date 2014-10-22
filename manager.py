@@ -9,7 +9,7 @@ import tornado.websocket
 import torndb
 from tornado.options import define, options
 define("port", default=8080, help="run on the given port", type=int)
-define("mysql_host", default="127.0.0.1:8080", help="blog database host")
+define("mysql_host", default="127.0.0.1:3306", help="blog database host")
 define("mysql_database", default="myDB", help="blog database name")
 define("mysql_user", default="root", help="blog database user")
 define("mysql_password", default="root", help="blog database password")
@@ -59,20 +59,20 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
 		self.write(self.result)
 
 class RegisterHandler(tornado.web.RequestHandler):
-	self.db = torndb.Connection(
-		host=options.mysql_host, database=options.mysql_database,
-		user=options.mysql_user, password=options.mysql_password)
-
+	
 	def get(self):
 		self.render("regis.html")
 
 	def post(self):
+		self.db = torndb.Connection(
+			options.mysql_host, options.mysql_database,
+			options.mysql_user, options.mysql_password)
+
 		self.name = self.get_argument("name")
 		self.mail = self.get_argument("email")
 		self.password = self.get_argument("pass")
 		self.db.execute(
-			"INSERT INTO user (user,email,password) VALUES (self.name,self.mail,self.password)" 
-			) 	
+			"INSERT INTO user (user,email,password) VALUES (%s,%s,%s)",self.name,self.mail,self.password) 
 		self.redirect("/")
      		
      		     
