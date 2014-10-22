@@ -16,9 +16,9 @@ class Player():
     
 	def run_command(self,*args):
 		if len(args) == 1:
-			args[0].execute(self.get_address())
+			return args[0].execute(self.get_address())
 		elif len(args) == 2:
-			args[0].execute(self.get_address(),args[1])    
+			return args[0].execute(self.get_address(),args[1])    
 
 	def player_status(self,status):
 		status.get_status(self.get_address())

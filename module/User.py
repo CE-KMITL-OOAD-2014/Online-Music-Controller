@@ -8,4 +8,4 @@ class User(object):
 
 	def get_player_stat(self):
 
-		print self.user_player.get_address()
+		return self.user_player.get_address()
