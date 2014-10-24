@@ -1,6 +1,7 @@
 import os.path
 from module import User,Player,Command
 
+import re
 import os.path
 import torndb
 import tornado.auth
@@ -92,6 +93,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.com = Command.PlaySong()
         self.result =  self.man.user_player.run_command(self.com,"lalala")
         self.write(self.result)
+    
 
 class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
     @tornado.web.asynchronous
