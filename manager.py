@@ -24,6 +24,8 @@ class Application(tornado.web.Application):
             (r"/", IndexHandler),
             (r"/ws", WebSocketHandler),
     		(r"/regis", RegisterHandler),               
+        	(r"/auth/login", LoginHandler),
+        	(r"/auth/logout", LogoutHandler),
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -31,7 +33,7 @@ class Application(tornado.web.Application):
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             xsrf_cookies=True,
             cookie_secret="bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
-            login_url="/login",
+            login_url="/auth/login",
             debug=True,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -54,7 +56,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
 
 class IndexHandler(BaseHandler):
-    #@tornado.web.authenticated
+    @tornado.web.authenticated
     def get(self):
         self.render("index.html")
 
@@ -114,16 +116,25 @@ class RegisterHandler(BaseHandler):
 
 class LoginHandler(BaseHandler):
 	def get(self):
-		self.render('login.html'):
+		self.render('login.html')
 
 	def post(self):
 		self.name = self.get_argument("name")
-		self.mail = self.get_argument("email")
 		self.password = self.get_argument("password")
-		user = self.db.get("SELECT * FROM user WHERE name = %s",user["email"])
-		self.set_secure_cookie("user",str(user_id))
+		self.hash = hashlib.sha224()
+		self.hash.update(self.password)
+		user = self.db.get("SELECT * FROM user WHERE name = %s AND password = %s",self.name,self.hash.hexdigest())
+		if not user:
+			self.redirect("/")
+		else:
+			user_id = user["id"]
+			self.set_secure_cookie("user",str(user_id))
+			self.write(user["name"])
 
-
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("user")
+        self.write("test1234")
      		
      		     
 def main():

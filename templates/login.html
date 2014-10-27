@@ -1,12 +1,13 @@
 <html>
-<head>
-<title>Please Log In</title>
-</head>
-<body>
-<form action="/auth/login" method="POST">
-Username: <input type="text" name="name" />
-Password: <input type="text" name="password" />
-<input type="submit" value="Log In" />
-</form>
-</body>
+	<head>
+		<title>Please Log In</title>
+	</head>
+	<body>
+		<form action="/auth/login" method="POST">
+			{% module xsrf_form_html() %}
+			Username: <input type="text" name="name" />
+			Password: <input type="password" name="password" />
+			<input type="submit" value="Log In" />
+		</form>
+	</body>
 </html>
