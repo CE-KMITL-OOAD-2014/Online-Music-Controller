@@ -7,6 +7,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.websocket
+import hashlib
 
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
@@ -47,7 +48,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.db
 
     def get_current_user(self):
-        user_id = self.get_secure_cookie("cookie_user")
+        user_id = self.get_secure_cookie("user")
         if not user_id: return None
         return self.db.get("SELECT * FROM user WHERE id = %s", int(user_id))
 
@@ -75,6 +76,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
+
     
     def on_message(self, message):
         print 'message received %s' % message
@@ -89,13 +91,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.write(self.result)
 
 
-def main():
-    tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(Application())
-    http_server.listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
-
-
 
 class RegisterHandler(BaseHandler):
 
@@ -105,13 +100,37 @@ class RegisterHandler(BaseHandler):
 	def post(self):
 		self.name = self.get_argument("name")
 		self.mail = self.get_argument("email")
-		self.password = self.get_argument("pass")
-		self.db.execute(
-			"INSERT INTO user (user,email,password) VALUES (self.name,self.mail,self.password)" 
-			) 	
+		self.password = self.get_argument("password")
+		self.hash = hashlib.sha224()
+		self.hash.update(self.password)
+		try:
+			self.db.execute(
+				"INSERT INTO user (name,email,password) VALUES (%s,%s,%s)",self.name,self.mail,self.hash.hexdigest()
+				)
+		except :
+			self.redirect("/")
+
 		self.redirect("/")
+
+class LoginHandler(BaseHandler):
+	def get(self):
+		self.render('login.html'):
+
+	def post(self):
+		self.name = self.get_argument("name")
+		self.mail = self.get_argument("email")
+		self.password = self.get_argument("password")
+		user = self.db.get("SELECT * FROM user WHERE name = %s",user["email"])
+		self.set_secure_cookie("user",str(user_id))
+
+
      		
      		     
+def main():
+    tornado.options.parse_command_line()
+    http_server = tornado.httpserver.HTTPServer(Application())
+    http_server.listen(options.port)
+    tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":
