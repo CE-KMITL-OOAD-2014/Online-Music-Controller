@@ -1,8 +1,9 @@
 <form action="/regis" method="POST">
-	username <input type="text" name="name"><br>
-	email <input type="text" name="email">
-	password <input type="password" name="pass">
-	<input type="submit">
+	{% module xsrf_form_html() %}
+		username <input type="text" name="name"><br>
+		email <input type="text" name="email">
+		password <input type="password" name="password">
+		<input type="submit">
 
 
 </form>
