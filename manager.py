@@ -26,6 +26,7 @@ class Application(tornado.web.Application):
     		(r"/regis", RegisterHandler),               
         	(r"/auth/login", LoginHandler),
         	(r"/auth/logout", LogoutHandler),
+        	(r"/test",TestHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -59,6 +60,12 @@ class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         self.render("index.html")
+
+class TestHandler(BaseHandler):
+	"""docstring for test"""
+	def get(self):
+		self.render("base.html")
+		
 
 
 class PlayerManagment():
