@@ -1,4 +1,4 @@
-
+from Remote import RemoteCommand
 from module import User,Player,Command
 
 import torndb
@@ -13,7 +13,7 @@ import subprocess
 import hashlib
 
 from tornado.options import define, options
-define("port", default=8000, help="run on the given port", type=int)
+define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
 define("mysql_database", default="myDB", help="blog database name")
 define("mysql_user", default="root", help="blog database user")
@@ -113,7 +113,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-
+        self.command = RemoteCommand("161.246.6.118")
+        self.command.login()
     
     def on_message(self, message):
         print 'message received %s' % message
@@ -127,7 +128,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.result =  self.man.user_player.run_command(self.com,"lalala")
         self.write(self.result)
 
-
+    def on_close(self):
+        self.commmand.logout()
+        clients.remove(self)
+        print 'connection closed' 
 
 class RegisterHandler(BaseHandler):
 
