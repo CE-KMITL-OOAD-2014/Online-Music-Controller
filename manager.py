@@ -73,16 +73,19 @@ class TestHandler(BaseHandler):
         
 
 
-class PlayerManagment():
-    def __init__(self,command) :
-        if command == "play_pause" :
-            self.com = Command.PlayPause()
-        elif command == "next":
-            self.com = Command.Next() 
-        elif command == "previous":
-            self.com = Command.Previous()
-        self.user = User.User("Sukrit")
-        print self.user.user_player.run_command(self.com)
+# class PlayerManagment():
+#     def __init__(self,command,receiver) :
+#         if command == "play_pause" :
+#             #self.com = Command.PlayPause()
+#             receiver.play_pause()
+#         elif command == "next":
+#             #self.com = Command.Next() 
+#             receiver.next()
+#         elif command == "previous":
+#             receiver.prev()
+#             #self.com = Command.Previous()
+#         #self.user = User.User("Sukrit")
+#         #print self.user.user_player.run_command(self.com)
 
 
 class FileManagment(tornado.web.RequestHandler):
@@ -113,23 +116,26 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-        self.command = RemoteCommand("161.246.6.118")
-        self.command.login()
+        self.play = Player.Player("161.246.6.118")
+        self.play.connect()
     
     def on_message(self, message):
         print 'message received %s' % message
         self.write_message('message received %s' % message)
-        PlayerManagment(message)
+        self.play.run_command(message)
+
 
     def post(self):
         var = self.get_argument('var')
-        self.man = User.User(var)
-        self.com = Command.PlaySong()
-        self.result =  self.man.user_player.run_command(self.com,"lalala")
-        self.write(self.result)
+        self.play_song(var)
+        #self.man = User.User(var)
+        #self.com = Command.PlaySong()
+        #self.result =  self.man.user_player.run_command(self.com,"lalala")
+        #self.write(self.result)
+
 
     def on_close(self):
-        self.commmand.logout()
+        
         clients.remove(self)
         print 'connection closed' 
 

@@ -2,15 +2,15 @@ from Abstract import Command
 from Remote import RemoteCommand
 
 class PlayPause(Command):
-    def execute(self,address) : 
+    def execute(self,r_command) : 
         return "play/pause at "+address
 
 class Previous(Command):
-    def execute(self,address) : 
+    def execute(self,r_command) : 
         return "Previous at "+address
 
 class Next(Command):
-    def execute(self,address) : 
+    def execute(self,r_command) : 
         return "Next at "+address
 
 class PlaySong(Command):
