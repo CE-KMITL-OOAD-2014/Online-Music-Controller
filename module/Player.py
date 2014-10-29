@@ -2,6 +2,7 @@ from GetPlaylist import GetPlaylist
 from File import File
 import Status
 from Remote import RemoteCommand
+from FileManagment import FileManagment
 
 class Player():
     """docstring for Player"""
@@ -10,6 +11,7 @@ class Player():
         self.player_list = [] 
         self.mem_status = ""
         self.ctrl_status = ""
+
         self.remote = RemoteCommand(player_id)
         
     def get_address(self):
@@ -32,7 +34,12 @@ class Player():
         elif args[0] == "previous":
             self.remote.previous()
         else:
-            self.remote(args[1])    
+            print args[1]
+            self.remote.play_song(args[1])
+
+    def add_file(self,file):
+        self.adder = FileManagment()
+        self.adder.add(file,self.player_id)
 
     def __del__(self):
         self.remote.logout()

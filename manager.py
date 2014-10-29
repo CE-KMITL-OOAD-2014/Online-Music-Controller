@@ -1,4 +1,3 @@
-from Remote import RemoteCommand
 from module import User,Player,Command
 
 import torndb
@@ -8,10 +7,9 @@ import tornado.options
 import tornado.web
 import tornado.websocket
 
+import hashlib
 import os
 import subprocess
-import hashlib
-
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
@@ -20,7 +18,6 @@ define("mysql_user", default="root", help="blog database user")
 define("mysql_password", default="root", help="blog database password")
 
 clients = []
-__UPLOADS__ = "/home/westlife/Desktop/uploadTest/upload/"
 
 class Application(tornado.web.Application):
     def __init__(self): 
@@ -31,7 +28,7 @@ class Application(tornado.web.Application):
             (r"/regis", RegisterHandler),               
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
-            (r"/test",TestHandler)
+            (r"/account",AccountHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -66,49 +63,17 @@ class IndexHandler(BaseHandler):
     def get(self):
         self.render("index.html")
 
-class TestHandler(BaseHandler):
-    """docstring for test"""
+class AccountHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self):
-        self.render("base.html")
-        
-
-
-# class PlayerManagment():
-#     def __init__(self,command,receiver) :
-#         if command == "play_pause" :
-#             #self.com = Command.PlayPause()
-#             receiver.play_pause()
-#         elif command == "next":
-#             #self.com = Command.Next() 
-#             receiver.next()
-#         elif command == "previous":
-#             receiver.prev()
-#             #self.com = Command.Previous()
-#         #self.user = User.User("Sukrit")
-#         #print self.user.user_player.run_command(self.com)
-
-
+        self.render("account.html")
+ 
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
-        cwd = subprocess.Popen('pwd', stderr=subprocess.STDOUT,stdout=subprocess.PIPE)
-        location = cwd.communicate()[0]
-        newline_location = location.find("\n")
-        location = location[:newline_location]+"/upload/"
-
-        player_address = "161.246.6.118"
-
         fileinfo = self.request.files['filearg'][0]
-        print "fileinfo is", fileinfo
-        fname = fileinfo['filename']
-        try:
-            fh = open(location + fname, 'w')
-            fh.write(fileinfo['body'])
-            self.finish(fname + " is uploaded!! Check "+location+" folder")
-            os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/code") #from server to player
-            print "sshpass -p raspberry scp /home/westlife/Desktop/scpTest/"+fname+" pi@"+player_address+":/home/pi/code"
-
-        except :
-            self.finish("duplicate_file!!!")
+        self.play = Player.Player("161.246.6.118")
+        self.play.add_file(fileinfo)
+        self.redirect("/account")
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
@@ -122,8 +87,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
     def on_message(self, message):
         print 'message received %s' % message
         self.write_message('message received %s' % message)
-        self.play.run_command(message)
-
+        if message.find("#play") != 0:
+            self.play.run_command(message)
+        else:
+            self.play.run_command("play",message[6:])
 
     def post(self):
         var = self.get_argument('var')
