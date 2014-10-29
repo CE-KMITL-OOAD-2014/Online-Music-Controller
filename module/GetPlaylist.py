@@ -3,8 +3,8 @@ from Playlist import Playlist
 class GetPlaylist():
 	def __init__(self):
 		self.playlist_list = []
-		self.playlist_list.append(Playlist("pl1"))
-		self.playlist_list.append(Playlist("pl2"))
+		# self.playlist_list.append(Playlist("pl1"))
+		# self.playlist_list.append(Playlist("pl2"))
 
 	def get_playlist(self):
 		try:

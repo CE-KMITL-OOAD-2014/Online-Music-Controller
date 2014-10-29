@@ -1,41 +1,48 @@
 import unittest
-from module import Player,Command,User
+from mock import Mock
+from module import GetPlaylist,Player
+
+class Foo(object):
+    # instance properties    
+    def next(self):
+        return "next"    
+    def play_song(self, argValue):
+        return "play "+argValue
+    def play_pause(self):
+        return "pp"
+    def previous(self):
+        return "prev"
+    def logout(self):
+        pass
 
 class TestCase(unittest.TestCase):
+    def test_get_playlist(self):
+        self.playlist = GetPlaylist.GetPlaylist()
+
+        mockPL1 = Mock(get_playlist_name = "Rock")
+        mockPL2 = Mock(get_playlist_name = "Pop")
+        mockPL3 = Mock(get_playlist_name = "Country")
+        mockPL4 = Mock(get_playlist_name = "Jazz")
+
+        self.playlist.playlist_list.append(mockPL1)
+        self.playlist.playlist_list.append(mockPL2)
+        self.playlist.playlist_list.append(mockPL3)
+        self.playlist.playlist_list.append(mockPL4)
+
+        test =["Rock","Pop","Country","Jazz"]
+
+        self.assertEqual(test, self.playlist.get_playlist())
 
 
-    def test_player(self):
-        # make sure the shuffled sequence does not lose any elements
-        self.player = Player.Player("1612224")
-        self.assertEqual("1612224", self.player.get_address())
-
-        # should raise an exception for an immutable sequence
-        #self.assertRaises(BaseException, self.player.get_address(1))
-
-    def test_user(self):
-        self.user = User.User("name")
-        self.assertEqual("1234",self.user.get_player_stat())
-
-    def test_playpause(self):
-        self.pp = Command.PlayPause()
-        self.assertEqual("play/pause at 12221",self.pp.execute("12221"))
-
-    def test_playsong(self):
-        self.pp = Command.PlaySong()
-        self.assertEqual("play lalala now at 12221",self.pp.execute("12221","lalala"))
-
-    def test_Next(self):
-        self.pp = Command.Next()
-        self.assertEqual("Next at 12221",self.pp.execute("12221"))
-
-    def test_Previous(self):
-        self.pp = Command.Previous()
-        self.assertEqual("Previous at 12221",self.pp.execute("12221"))
-
-    def test_command(self):
-        self.com = Player.Player("12221")
-        self.exCommand = Command.Previous()
-        self.assertEqual("Previous at 12221",self.com.run_command(self.exCommand))
+    def test_run_command(self):
+        self.player = Player.Player("1234")
+        mock_remote = Foo()
+        self.player.remote = mock_remote
+        self.assertEqual("next", self.player.run_command("next"))
+        self.assertEqual("pp", self.player.run_command("play_pause"))
+        self.assertEqual("prev", self.player.run_command("previous"))
+        self.assertEqual("play lalala", self.player.run_command("play","lalala"))
+        self.assertRaises(IndexError,lambda:self.player.run_command())
 
 
 

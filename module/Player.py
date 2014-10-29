@@ -27,19 +27,18 @@ class Player():
 
         if args[0] == "play_pause" :
             #self.com = Command.PlayPause()
-            self.remote.play_pause()
+            return self.remote.play_pause()
         elif args[0] == "next":
             #self.com = Command.Next() 
-            self.remote.next()
+            return self.remote.next()
         elif args[0] == "previous":
-            self.remote.previous()
+            return self.remote.previous()
         
         elif args[0] == "get_playlist":
-            return self.playlists.get_playlist()  
-             
+            return self.playlists.get_playlist()   
         else:
-            print args[1]
-            self.remote.play_song(args[1])
+            #print args[1]
+            return self.remote.play_song(args[1])
 
     def add_file(self,file):
         self.adder = FileManagment()
