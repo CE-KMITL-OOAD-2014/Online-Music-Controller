@@ -1,4 +1,3 @@
-
 from module import User,Player,Command
 
 import torndb
@@ -8,10 +7,9 @@ import tornado.options
 import tornado.web
 import tornado.websocket
 
+import hashlib
 import os
 import subprocess
-import hashlib
-
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
@@ -20,7 +18,6 @@ define("mysql_user", default="root", help="blog database user")
 define("mysql_password", default="root", help="blog database password")
 
 clients = []
-
 
 class Application(tornado.web.Application):
     def __init__(self): 
@@ -32,7 +29,7 @@ class Application(tornado.web.Application):
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
             (r"/playlist", PlaylistHandler),     
-            (r"/test",TestHandler)
+            (r"/account",AccountHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -67,45 +64,12 @@ class IndexHandler(BaseHandler):
     def get(self):
         self.render("index.html",playlist = "")
 
-class TestHandler(BaseHandler):
-    """docstring for test"""
+class AccountHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self):
-        self.render("base.html")
+		self.render("account.html")
+
         
-
-
-# class PlayerManagment():
-#     def __init__(self,command,receiver) :
-#         if command == "play_pause" :
-#             #self.com = Command.PlayPause()
-#             receiver.play_pause()
-#         elif command == "next":
-#             #self.com = Command.Next() 
-#             receiver.next()
-#         elif command == "previous":
-#             receiver.prev()
-#             #self.com = Command.Previous()
-#         #self.user = User.User("Sukrit")
-#         #print self.user.user_player.run_command(self.com)
-
-"""class PlaylistManagment():
-    def __init__(self):
-        playlist_list =  GetPlaylist()
-
-    def run_command(self,command):
-        if command[:3] == "add" :
-            try :
-                playlist_list.add_playlist(command[3:])
-            except :
-                print "maybe to long playlist name "
-        elif command[:3] == "get" :
-            try :
-                playlist_list.get_playlist(command[3:])
-            except :
-                print "can't find any playlist name "+command[3:]
-
-
-"""
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
         self.play = Player.Player("161.246.6.118")
@@ -121,27 +85,36 @@ class PlaylistHandler(tornado.web.RequestHandler):
     def set_render_str(self,renderString):
         self.renderStr = renderString
 
+
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
-        cwd = subprocess.Popen('pwd', stderr=subprocess.STDOUT,stdout=subprocess.PIPE)
-        location = cwd.communicate()[0]
-        newline_location = location.find("\n")
-        location = location[:newline_location]+"/upload/"
-
-        player_address = "161.246.6.118"
-
         fileinfo = self.request.files['filearg'][0]
-        print "fileinfo is", fileinfo
-        fname = fileinfo['filename']
-        try:
-            fh = open(location + fname, 'w')
-            fh.write(fileinfo['body'])
-            self.finish(fname + " is uploaded!! Check "+location+" folder")
-            os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/code") #from server to player
-            print "sshpass -p raspberry scp /home/westlife/Desktop/scpTest/"+fname+" pi@"+player_address+":/home/pi/code"
+        self.play = Player.Player("161.246.6.118")
+        self.play.add_file(fileinfo)
+        self.redirect("/account")
 
-        except :
-            self.finish("duplicate_file!!!")
+
+class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
+    def open(self):
+        clients.append(self)
+        print 'new connection'
+        self.write_message("connected")
+        self.play = Player.Player("161.246.6.118")
+        self.play.connect()
+    
+    def on_message(self, message):
+        print 'message received %s' % message
+        self.write_message('message received %s' % message)
+        if message.find("#play") != 0:
+            self.play.run_command(message)
+        else:
+            self.play.run_command("play",message[6:])
+
+
+    def on_close(self):
+        
+        clients.remove(self)
+        print 'connection closed' 
 
 
 class RegisterHandler(BaseHandler):
@@ -185,46 +158,7 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.write("test1234")
-            
-class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
-    def open(self):
-        clients.append(self)
-        print 'new connection'
-        self.write_message("connected")
-        self.play = Player.Player("161.246.6.118")
-        self.play.connect()
-    
-    def on_message(self, message):
-        print 'message received %s' % message
-        self.write_message('message received %s' % message)
-        """if message != "get_playlist":
-            self.play.run_command(message)
-        else :
-            renderStr = "<select>"
-            playlists = self.play.run_command(message)
-            for playlist in playlists :
-                renderStr = renderStr+"<option value="+str(playlist)+">"+str(playlist)+"</option>"
-            renderStr = renderStr+'</select><button name="selected_playlist value"="selected_playlist" onclick="OnClick("selected_playlist")"> selected_playlist </button>'
-            plHandler = PlaylistHandler()
-            plHandler.set_render_str(renderStr)
-            self.redirect("/playlist")"""
-        self.play.run_command(message)
-
-    def post(self):
-        var = self.get_argument('var')
-        self.play_song(var)
-        #self.man = User.User(var)
-        #self.com = Command.PlaySong()
-        #self.result =  self.man.user_player.run_command(self.com,"lalala")
-        #self.write(self.result)
-
-
-    def on_close(self):
-        
-        clients.remove(self)
-        print 'connection closed' 
-
- 
+             
 
 def main():
     tornado.options.parse_command_line()

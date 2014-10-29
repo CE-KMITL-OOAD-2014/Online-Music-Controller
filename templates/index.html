@@ -40,10 +40,12 @@
       </form> -->
       test data <input type="text" id="var" >
       <button id = "play"  > play</button>
+
       <button name="previous" value="previous" onclick="OnClick('previous')"> previous</button>
       <button name="play_pause" value="play_pause" onclick="OnClick('play_pause')"> Play/Pause</button>
       <button name="next" value="next" onclick="OnClick('next')"> next </button>
-      <a href="/playlist">jlk </a>
+      <a href="/playlist">playlist </a>
+
       
       <br>
 <!--       <form enctype="multipart/form-data" action="/upload" method="post">File: <input type="file" name="filearg" />
@@ -52,10 +54,12 @@
         <input type="submit" value="upload" />
         {% module xsrf_form_html() %}
       </form> -->
+
       <div>
         {{ playlist }}
 
       </div>
+
       <script src="{{ static_url("js/jquery.min.js") }}"></script>
       <script src="{{ static_url("js/bootstrap.min.js") }}"></script>
       <script type="text/javascript">
