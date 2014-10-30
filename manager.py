@@ -1,4 +1,4 @@
-from Remote import RemoteCommand
+
 from module import User,Player,Command
 
 import torndb
@@ -20,7 +20,7 @@ define("mysql_user", default="root", help="blog database user")
 define("mysql_password", default="root", help="blog database password")
 
 clients = []
-__UPLOADS__ = "/home/westlife/Desktop/uploadTest/upload/"
+
 
 class Application(tornado.web.Application):
     def __init__(self): 
@@ -31,6 +31,7 @@ class Application(tornado.web.Application):
             (r"/regis", RegisterHandler),               
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
+            (r"/playlist", PlaylistHandler),     
             (r"/test",TestHandler)
         ]
         settings = dict(
@@ -64,7 +65,7 @@ class BaseHandler(tornado.web.RequestHandler):
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render("index.html")
+        self.render("index.html",playlist = "")
 
 class TestHandler(BaseHandler):
     """docstring for test"""
@@ -87,6 +88,38 @@ class TestHandler(BaseHandler):
 #         #self.user = User.User("Sukrit")
 #         #print self.user.user_player.run_command(self.com)
 
+"""class PlaylistManagment():
+    def __init__(self):
+        playlist_list =  GetPlaylist()
+
+    def run_command(self,command):
+        if command[:3] == "add" :
+            try :
+                playlist_list.add_playlist(command[3:])
+            except :
+                print "maybe to long playlist name "
+        elif command[:3] == "get" :
+            try :
+                playlist_list.get_playlist(command[3:])
+            except :
+                print "can't find any playlist name "+command[3:]
+
+
+"""
+class PlaylistHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.play = Player.Player("161.246.6.118")
+        self.play.connect()
+        renderStr = "<select>"
+        playlists = self.play.run_command("get_playlist")
+        for playlist in playlists :
+            renderStr = renderStr+"<option value="+str(playlist)+">"+str(playlist)+"</option>"
+            renderStr = renderStr+'</select><button name="selected_playlist value"="selected_playlist" onclick="OnClick("selected_playlist")"> selected_playlist </button>'
+        self.render("index.html",
+                playlist = renderStr
+            )
+    def set_render_str(self,renderString):
+        self.renderStr = renderString
 
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
@@ -110,34 +143,6 @@ class FileManagment(tornado.web.RequestHandler):
         except :
             self.finish("duplicate_file!!!")
 
-
-class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
-    def open(self):
-        clients.append(self)
-        print 'new connection'
-        self.write_message("connected")
-        self.play = Player.Player("161.246.6.118")
-        self.play.connect()
-    
-    def on_message(self, message):
-        print 'message received %s' % message
-        self.write_message('message received %s' % message)
-        self.play.run_command(message)
-
-
-    def post(self):
-        var = self.get_argument('var')
-        self.play_song(var)
-        #self.man = User.User(var)
-        #self.com = Command.PlaySong()
-        #self.result =  self.man.user_player.run_command(self.com,"lalala")
-        #self.write(self.result)
-
-
-    def on_close(self):
-        
-        clients.remove(self)
-        print 'connection closed' 
 
 class RegisterHandler(BaseHandler):
 
@@ -181,6 +186,44 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("user")
         self.write("test1234")
             
+class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
+    def open(self):
+        clients.append(self)
+        print 'new connection'
+        self.write_message("connected")
+        self.play = Player.Player("161.246.6.118")
+        self.play.connect()
+    
+    def on_message(self, message):
+        print 'message received %s' % message
+        self.write_message('message received %s' % message)
+        """if message != "get_playlist":
+            self.play.run_command(message)
+        else :
+            renderStr = "<select>"
+            playlists = self.play.run_command(message)
+            for playlist in playlists :
+                renderStr = renderStr+"<option value="+str(playlist)+">"+str(playlist)+"</option>"
+            renderStr = renderStr+'</select><button name="selected_playlist value"="selected_playlist" onclick="OnClick("selected_playlist")"> selected_playlist </button>'
+            plHandler = PlaylistHandler()
+            plHandler.set_render_str(renderStr)
+            self.redirect("/playlist")"""
+        self.play.run_command(message)
+
+    def post(self):
+        var = self.get_argument('var')
+        self.play_song(var)
+        #self.man = User.User(var)
+        #self.com = Command.PlaySong()
+        #self.result =  self.man.user_player.run_command(self.com,"lalala")
+        #self.write(self.result)
+
+
+    def on_close(self):
+        
+        clients.remove(self)
+        print 'connection closed' 
+
  
 
 def main():

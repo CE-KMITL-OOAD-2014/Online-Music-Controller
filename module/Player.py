@@ -7,7 +7,7 @@ class Player():
     """docstring for Player"""
     def __init__(self, player_id):
         self.player_id = player_id
-        self.player_list = [] 
+        self.playlists = GetPlaylist() 
         self.mem_status = ""
         self.ctrl_status = ""
         self.remote = RemoteCommand(player_id)
@@ -31,8 +31,14 @@ class Player():
             self.remote.next()
         elif args[0] == "previous":
             self.remote.previous()
+        
+        elif args[0] == "get_playlist":
+            return self.playlists.get_playlist()   
+
+
         else:
-            self.remote(args[1])    
+            self.remote(args[1])   
+
 
     def __del__(self):
         self.remote.logout()
