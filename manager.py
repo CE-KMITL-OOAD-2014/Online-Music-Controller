@@ -10,6 +10,7 @@ import tornado.websocket
 import hashlib
 import os
 import subprocess
+from module.PlayerRepo import PlayerRepo
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
@@ -29,7 +30,8 @@ class Application(tornado.web.Application):
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
             (r"/playlist", PlaylistHandler),     
-            (r"/account",AccountHandler)
+            (r"/account",AccountHandler),
+            (r"/addplayer",AddPlayerHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -67,7 +69,15 @@ class IndexHandler(BaseHandler):
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-		self.render("account.html")
+        user_id = self.get_secure_cookie("user")
+        self.user = User.User(user_id)
+        self.user.update_player_list()
+        player_temp = self.user.get_players()
+        self.render(
+                "account.html",
+                players = player_temp
+            )
+		# self.render("account.html")
 
         
 class PlaylistHandler(tornado.web.RequestHandler):
@@ -100,7 +110,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         print 'new connection'
         self.write_message("connected")
         self.play = Player.Player("161.246.6.118")
-        self.play.connect()
+        try:
+            self.play.connect()
+        except:
+            pass
     
     def on_message(self, message):
         print 'message received %s' % message
@@ -110,12 +123,28 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         else:
             self.play.run_command("play",message[6:])
 
-
     def on_close(self):
         
         clients.remove(self)
         print 'connection closed' 
 
+
+class AddPlayerHandler(BaseHandler):
+
+    def post(self):
+        self.mac =  self.get_argument("mac")
+        self.ip =  self.get_argument("ip")
+        user_id = self.get_secure_cookie("user")
+        self.player = Player.Player(self.ip)
+        self.player.set_player_id(self.mac)
+        self.player.add(user_id)
+        # test = PlayerRepo()
+        # devices = test.get_all(user_id)
+        # self.render(
+        #         "player_list.html",
+        #         header = user_id,
+        #         players = devices
+        #     )
 
 class RegisterHandler(BaseHandler):
 
