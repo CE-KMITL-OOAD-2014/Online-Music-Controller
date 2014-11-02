@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{{ header}}</title>
+	<title>Choose Player</title>
 </head>
 <body>
-	{% for play in players%}
-		<a href="#">{{ play }}</a>
+		<form  action="/" method="post">
+		
+		{% for play in players%}
+		<input type="radio" name = "player" value="{{ play.player_ip }}">{{ play.player_id }} :: {{ play.player_ip }}
 		<br>
 	{%end%}
+	<input type="submit">
 </body>
 </html>

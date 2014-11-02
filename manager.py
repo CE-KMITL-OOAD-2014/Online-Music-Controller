@@ -31,6 +31,7 @@ class Application(tornado.web.Application):
             (r"/auth/logout", LogoutHandler),
             (r"/playlist", PlaylistHandler),     
             (r"/account",AccountHandler),
+            (r"/setplayer",SetPlayerHandler),
             (r"/addplayer",AddPlayerHandler)
         ]
         settings = dict(
@@ -79,6 +80,18 @@ class AccountHandler(BaseHandler):
             )
 		# self.render("account.html")
 
+class SetPlayerHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        user_id = self.get_secure_cookie("user")
+        self.user = User.User(user_id)
+        self.user.update_player_list()
+        player_temp = self.user.get_players()
+        self.render(
+                "player_list.html",
+                players = player_temp
+            )
+        # self.render("account.html")
         
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
@@ -109,16 +122,22 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-        self.play = Player.Player("161.246.6.118")
-        try:
-            self.play.connect()
-        except:
-            pass
+        # self.play = Player.Player("161.246.6.118")
+        # try:
+        #     self.play.connect()
+        # except:
+        #     pass
     
     def on_message(self, message):
         print 'message received %s' % message
         self.write_message('message received %s' % message)
-        if message.find("#play") != 0:
+        if message.find("open") == 0:
+            self.play = Player.Player(message[5:])
+            try:
+                self.play.connect()
+            except:
+                pass
+        elif message.find("#play") != 0:
             self.play.run_command(message)
         else:
             self.play.run_command("play",message[6:])
