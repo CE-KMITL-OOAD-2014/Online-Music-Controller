@@ -70,14 +70,15 @@ class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         player =  self.get_current_player()
-        user = self.get_current_user()
-        self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
+        if not player:
+            self.redirect("/setplayer")
+        else:
+            user = self.get_current_user()
+            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        user_id = self.get_secure_cookie("user")
-        self.user = User.User(user_id)
         self.render("account.html")
 
 class SetPlayerHandler(BaseHandler):
@@ -87,10 +88,13 @@ class SetPlayerHandler(BaseHandler):
         self.user = User.User(user_id)
         self.user.update_player_list()
         player_temp = self.user.get_players()
-        self.render(
-                "player_list.html",
-                players = player_temp
-            )
+        if not player_temp:
+            self.redirect("/account")
+        else:
+            self.render(
+                    "player_list.html",
+                    players = player_temp
+                )
 
     def post(self):
         player_ip =  self.get_argument("player")   
@@ -166,13 +170,8 @@ class AddPlayerHandler(BaseHandler):
         self.player = Player.Player(self.ip)
         self.player.set_player_id(self.mac)
         self.player.add(user_id)
-        # test = PlayerRepo()
-        # devices = test.get_all(user_id)
-        # self.render(
-        #         "player_list.html",
-        #         header = user_id,
-        #         players = devices
-        #     )
+        self.redirect("/account")
+
 
 class RegisterHandler(BaseHandler):
 
@@ -193,6 +192,7 @@ class RegisterHandler(BaseHandler):
             self.redirect("/")
 
         self.redirect("/")
+
 
 class LoginHandler(BaseHandler):
     def get(self):
@@ -215,7 +215,7 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.clear_cookie("player")
-        self.write("test1234")
+        self.write("please login  <a href ='/auth/login' >sign in</a>")
              
 
 def main():
