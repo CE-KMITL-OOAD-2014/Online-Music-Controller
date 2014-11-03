@@ -11,7 +11,10 @@
         var wsocket = new WebSocket("ws://161.246.6.128:8888/ws" );
     
         wsocket.onopen = function(){
-          wsocket.send("open 161.246.6.118");  
+          var temp1 = $("#ip").text();
+          var temp2 = "open ";
+          var ip_msg = temp2.concat(temp1);
+          wsocket.send(ip_msg);  
           console.log("connected"); 
         }; 
  
@@ -31,14 +34,11 @@
     <body>
       <a href="/account">account</a>
       <a href="/auth/logout">logout</a>
-      <h1>Hello, world!</h1>
-<!--       <form action ="/ws" method="POST">
-          {% module xsrf_form_html() %}
-         test data <input type="text" name="var" >
-        <input type = "submit">
-
-     
-      </form> -->
+      <h1>Hello, {{user}}</h1>
+      <h3>IP : {{player_ip}}</h3>
+      <div hidden id = "ip" >{{player_ip}}</div>
+      <br><a href="/setplayer">select player</a>
+      <br>
       test data <input type="text" id="var" >
       <button id = "play"  > play</button>
 

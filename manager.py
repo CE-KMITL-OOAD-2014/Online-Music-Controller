@@ -61,24 +61,24 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_id: return None
         return self.db.get("SELECT * FROM user WHERE id = %s", int(user_id))
 
+    def get_current_player(self):
+        player_id = self.get_secure_cookie("player")
+        if not player_id: return None
+        return self.db.get("SELECT * FROM player WHERE id = %s", int(player_id))
 
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render("index.html",playlist = "")
+        player =  self.get_current_player()
+        user = self.get_current_user()
+        self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         user_id = self.get_secure_cookie("user")
         self.user = User.User(user_id)
-        self.user.update_player_list()
-        player_temp = self.user.get_players()
-        self.render(
-                "account.html",
-                players = player_temp
-            )
-		# self.render("account.html")
+        self.render("account.html")
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -91,8 +91,17 @@ class SetPlayerHandler(BaseHandler):
                 "player_list.html",
                 players = player_temp
             )
-        # self.render("account.html")
-        
+
+    def post(self):
+        player_ip =  self.get_argument("player")   
+        player = self.db.get("SELECT * FROM player WHERE ip = %s ",player_ip)
+        if not player:
+            self.redirect("/")
+        else:
+            player_id = player["id"]
+            self.set_secure_cookie("player",str(player_id))
+            self.redirect("/")
+
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
         self.play = Player.Player("161.246.6.118")
@@ -200,11 +209,12 @@ class LoginHandler(BaseHandler):
         else:
             user_id = user["id"]
             self.set_secure_cookie("user",str(user_id))
-            self.write(user["name"])
+            self.redirect("/setplayer")
 
 class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
+        self.clear_cookie("player")
         self.write("test1234")
              
 

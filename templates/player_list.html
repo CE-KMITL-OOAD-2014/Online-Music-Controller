@@ -4,8 +4,8 @@
 	<title>Choose Player</title>
 </head>
 <body>
-		<form  action="/" method="post">
-		
+		<form  action="/setplayer" method="post">
+			{% module xsrf_form_html() %}
 		{% for play in players%}
 		<input type="radio" name = "player" value="{{ play.player_ip }}">{{ play.player_id }} :: {{ play.player_ip }}
 		<br>

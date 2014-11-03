@@ -22,11 +22,5 @@
         <input type="submit" value="upload" />
         {% module xsrf_form_html() %}
       </form>
-	
-
-		{% for play in players%}
-		<a href="#">{{ play.player_id }} :: {{ play.player_ip }}</a>
-		<br>
-	{%end%}
 </body>
 </html>
