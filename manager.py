@@ -31,14 +31,16 @@ class Application(tornado.web.Application):
             (r"/regis", RegisterHandler),               
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
-            (r"/playlist", PlaylistHandler),     
+            (r"/playlist", PlaylistHandler),
+            (r"/playlist/add", AddPlaylistHandler),
+            (r"/playlist/edit", EditPlaylistHandler),     
             (r"/test",TestHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            xsrf_cookies=True,
+            xsrf_cookies=False,
             cookie_secret="bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
             login_url="/auth/login",
             debug=True,
@@ -73,54 +75,47 @@ class TestHandler(BaseHandler):
         self.render("base.html")
         
 
-
-# class PlayerManagment():
-#     def __init__(self,command,receiver) :
-#         if command == "play_pause" :
-#             #self.com = Command.PlayPause()
-#             receiver.play_pause()
-#         elif command == "next":
-#             #self.com = Command.Next() 
-#             receiver.next()
-#         elif command == "previous":
-#             receiver.prev()
-#             #self.com = Command.Previous()
-#         #self.user = User.User("Sukrit")
-#         #print self.user.user_player.run_command(self.com)
-
-"""class PlaylistManagment():
-    def __init__(self):
-        playlist_list =  GetPlaylist()
-
-    def run_command(self,command):
-        if command[:3] == "add" :
-            try :
-                playlist_list.add_playlist(command[3:])
-            except :
-                print "maybe to long playlist name "
-        elif command[:3] == "get" :
-            try :
-                playlist_list.get_playlist(command[3:])
-            except :
-                print "can't find any playlist name "+command[3:]
-
-
-"""
+###########################################################################################
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
         self.play = Player.Player("161.246.6.118")
         self.play.connect()
-        renderStr = "<select>"
         playlists = self.play.run_command("get_playlist")
-        for playlist in playlists :
-            renderStr = renderStr+"<option value="+str(playlist)+">"+str(playlist)+"</option>"
-            renderStr = renderStr+'</select><button name="selected_playlist value"="selected_playlist" onclick="OnClick("selected_playlist")"> selected_playlist </button>'
+        try:
+            renderStr = "<form name ='playlist_list' id ='playlist_list'><select name='playlist_name'>"
+            for playlist in playlists :
+                renderStr = renderStr+"<option value='"+str(playlist)+"'>"+str(playlist)+"</option>"
+            renderStr = renderStr+'</select><input type="submit" id="load_playlist" value="load"><input type="submit" id="edit_playlist" value="edit"></form><br>'
+            renderStr = renderStr+'<form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>'
+            renderStr = renderStr+'<script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>'
+            renderStr = renderStr+'<script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");$("#playlist_list").attr("method","get");$("#playlist_list").submit();}); </script>'
+        except:        
+             renderStr = ""
         self.render("index.html",
-                playlist = renderStr
+                playlist = str(renderStr)
             )
+        
+    def post(self):
+        print "asdfasdgadfadsfasdfasdfasdf"
+        print self.get_argument('playlist_name')
+        self.redirect("/")
+        """Get songs list display to main site"""
     def set_render_str(self,renderString):
         self.renderStr = renderString
 
+class AddPlaylistHandler(tornado.web.RequestHandler):
+    def post(self):
+        self.play = Player.Player("161.246.6.118")
+        self.play.connect()
+        print self.get_argument('new_playlist_name')
+        self.play.run_command("add_playlist",self.get_argument('new_playlist_name'))
+        self.redirect("/")
+
+class EditPlaylistHandler(tornado.web.RequestHandler):
+    def get(self):
+        pass
+
+###########################################################################################
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         cwd = subprocess.Popen('pwd', stderr=subprocess.STDOUT,stdout=subprocess.PIPE)
@@ -142,6 +137,7 @@ class FileManagment(tornado.web.RequestHandler):
 
         except :
             self.finish("duplicate_file!!!")
+
 
 
 class RegisterHandler(BaseHandler):
@@ -197,17 +193,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
     def on_message(self, message):
         print 'message received %s' % message
         self.write_message('message received %s' % message)
-        """if message != "get_playlist":
-            self.play.run_command(message)
-        else :
-            renderStr = "<select>"
-            playlists = self.play.run_command(message)
-            for playlist in playlists :
-                renderStr = renderStr+"<option value="+str(playlist)+">"+str(playlist)+"</option>"
-            renderStr = renderStr+'</select><button name="selected_playlist value"="selected_playlist" onclick="OnClick("selected_playlist")"> selected_playlist </button>'
-            plHandler = PlaylistHandler()
-            plHandler.set_render_str(renderStr)
-            self.redirect("/playlist")"""
         self.play.run_command(message)
 
     def post(self):

@@ -35,6 +35,9 @@ class Player():
         elif args[0] == "get_playlist":
             return self.playlists.get_playlist()   
 
+        elif args[0] == "add_playlist":
+            print "add_playlist"+args[1]
+            self.playlists.add_playlist(args[1])
 
         else:
             self.remote(args[1])   
