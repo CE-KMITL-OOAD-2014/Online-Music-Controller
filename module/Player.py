@@ -3,25 +3,30 @@ from File import File
 import Status
 from Remote import RemoteCommand
 from FileManagment import FileManagment
+from PlayerRepo import PlayerRepo
 
 class Player():
     """docstring for Player"""
-    def __init__(self, player_id):
-        self.player_id = player_id
+    def __init__(self,player_ip):
+        self.player_id = ""
+        self.player_ip = player_ip
         self.playlists = GetPlaylist() 
         self.mem_status = ""
         self.ctrl_status = ""
 
-        self.remote = RemoteCommand(player_id)
+        self.remote = RemoteCommand(player_ip)
         
     def get_address(self):
-        return self.player_id
+        return self.player_ip
     
     def connect(self):
         self.remote.login()
 
     def player_status(self,status):
         status.get_status(self.get_address())
+
+    def set_player_id(self,player_id):
+        self.player_id = player_id
 
     def run_command(self,*args) :
 
@@ -47,7 +52,11 @@ class Player():
 
     def add_file(self,file):
         self.adder = FileManagment()
-        self.adder.add(file,self.player_id)
+        self.adder.add(file,self.player_ip)
+
+    def add(self,user) :
+        self.player = PlayerRepo()   
+        self.player.add(self.player_id,self.player_ip,user)
 
 
     def __del__(self):
