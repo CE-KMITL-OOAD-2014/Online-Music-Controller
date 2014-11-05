@@ -8,7 +8,6 @@ class GetPlaylist():
 		self.playlist_list.append(Playlist("pl2"))
 ###########################################################################################
 
-
 	def get_playlist(self):
 		try:
 			returnPlaylist = []
