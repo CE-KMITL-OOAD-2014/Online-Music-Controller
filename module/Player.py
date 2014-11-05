@@ -35,11 +35,11 @@ class Player():
             return self.remote.previous()
         
         elif args[0] == "get_playlist":
-            return self.playlists.get_playlist()   
+            return self.playlists.get_playlist(args[1])   
 
         elif args[0] == "add_playlist":
             print "add_playlist"+args[1]
-            self.playlists.add_playlist(args[1])
+            self.playlists.add_playlist(args[1],args[2])
 
         else:
             #print args[1]

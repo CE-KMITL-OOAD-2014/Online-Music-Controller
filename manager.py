@@ -28,15 +28,11 @@ class Application(tornado.web.Application):
             (r"/regis", RegisterHandler),               
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
-<<<<<<< HEAD
             (r"/playlist", PlaylistHandler),
             (r"/playlist/add", AddPlaylistHandler),
             (r"/playlist/edit", EditPlaylistHandler),     
-            (r"/test",TestHandler)
-=======
-            (r"/playlist", PlaylistHandler),     
+             (r"/playlist", PlaylistHandler),     
             (r"/account",AccountHandler)
->>>>>>> 918f91de79e132c90393b89800348d7b03dd474e
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -80,13 +76,15 @@ class AccountHandler(BaseHandler):
 
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.connect()
-        playlists = self.play.run_command("get_playlist")
+        player_id = "1111"
+        playlists = self.play.run_command("get_playlist",player_id)
+        print playlists
         try:
             renderStr = "<form name ='playlist_list' id ='playlist_list'><select name='playlist_name'>"
             for playlist in playlists :
-                renderStr = renderStr+"<option value='"+str(playlist)+"'>"+str(playlist)+"</option>"
+                renderStr = renderStr+"<option value='"+playlist["playlist_name"]+"'>"+playlist["playlist_name"]+"</option>"
             renderStr = renderStr+'</select><input type="submit" id="load_playlist" value="load"><input type="submit" id="edit_playlist" value="edit"></form><br>'
             renderStr = renderStr+'<form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>'
             renderStr = renderStr+'<script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>'
@@ -107,10 +105,11 @@ class PlaylistHandler(tornado.web.RequestHandler):
 
 class AddPlaylistHandler(tornado.web.RequestHandler):
     def post(self):
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.connect()
+        player_id = "1111"
         print self.get_argument('new_playlist_name')
-        self.play.run_command("add_playlist",self.get_argument('new_playlist_name'))
+        self.play.run_command("add_playlist",self.get_argument('new_playlist_name'),player_id)
         self.redirect("/")
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
@@ -121,7 +120,7 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         fileinfo = self.request.files['filearg'][0]
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.add_file(fileinfo)
         self.redirect("/account")
 
@@ -131,7 +130,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.connect()
     
     def on_message(self, message):
@@ -197,7 +196,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.connect()
     
     def on_message(self, message):
