@@ -3,11 +3,14 @@
 		<title>Please Log In</title>
 	</head>
 	<body>
+		sign in
 		<form action="/auth/login" method="POST">
 			{% module xsrf_form_html() %}
 			Username: <input type="text" name="name" />
 			Password: <input type="password" name="password" />
 			<input type="submit" value="Log In" />
 		</form>
+		<br>
+		or <a href="/regis">sign up</a>
 	</body>
 </html>

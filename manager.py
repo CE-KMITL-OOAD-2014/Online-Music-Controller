@@ -10,6 +10,7 @@ import tornado.websocket
 import hashlib
 import os
 import subprocess
+from module.PlayerRepo import PlayerRepo
 from tornado.options import define, options
 define("port", default=8888, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
@@ -31,8 +32,9 @@ class Application(tornado.web.Application):
             (r"/playlist", PlaylistHandler),
             (r"/playlist/add", AddPlaylistHandler),
             (r"/playlist/edit", EditPlaylistHandler),     
-             (r"/playlist", PlaylistHandler),     
-            (r"/account",AccountHandler)
+            (r"/account",AccountHandler),
+            (r"/setplayer",SetPlayerHandler),
+            (r"/addplayer",AddPlayerHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -61,16 +63,53 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_id: return None
         return self.db.get("SELECT * FROM user WHERE id = %s", int(user_id))
 
+    def get_current_player(self):
+        player_id = self.get_secure_cookie("player")
+        if not player_id: return None
+        return self.db.get("SELECT * FROM player WHERE id = %s", int(player_id))
 
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render("index.html",playlist = "")
+        player =  self.get_current_player()
+        if not player:
+            self.redirect("/setplayer")
+        else:
+            user = self.get_current_user()
+            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-		self.render("account.html")
+        player =  self.get_current_player()
+        print player["ip"]
+        self.render("account.html",player_ip = player["ip"])
+
+class SetPlayerHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        user_id = self.get_secure_cookie("user")
+        self.user = User.User(user_id)
+        self.user.update_player_list()
+        player_temp = self.user.get_players()
+        if not player_temp:
+            self.redirect("/account")
+        else:
+            self.render(
+                    "player_list.html",
+                    players = player_temp
+                )
+
+    def post(self):
+        player_ip =  self.get_argument("player")   
+        player = self.db.get("SELECT * FROM player WHERE ip = %s ",player_ip)
+        if not player:
+            self.redirect("/")                                    #if dont have player in db
+        else:
+            player_id = player["id"]
+            self.set_secure_cookie("player",str(player_id))        # have player in db and set player cookie
+            self.redirect("/")
+
 
 ###########################################################################################
 
@@ -120,7 +159,8 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         fileinfo = self.request.files['filearg'][0]
-        self.play = Player.Player("161.246.5.47")
+        player_ip = self.get_argument("player")
+        self.play = Player.Player(player_ip)
         self.play.add_file(fileinfo)
         self.redirect("/account")
 
@@ -130,22 +170,38 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
-        self.play = Player.Player("161.246.5.47")
-        self.play.connect()
     
     def on_message(self, message):
         print 'message received %s' % message
         self.write_message('message received %s' % message)
-        if message.find("#play") != 0:
+        if message.find("open") == 0:
+            self.play = Player.Player(message[5:])
+            try:
+                self.play.connect()
+            except:
+                pass
+        elif message.find("#play") != 0:
             self.play.run_command(message)
         else:
             self.play.run_command("play",message[6:])
-
 
     def on_close(self):
         
         clients.remove(self)
         print 'connection closed' 
+
+
+
+class AddPlayerHandler(BaseHandler):
+
+    def post(self):
+        self.mac =  self.get_argument("mac")
+        self.ip =  self.get_argument("ip")
+        user_id = self.get_secure_cookie("user")
+        self.player = Player.Player(self.ip)
+        self.player.set_player_id(self.mac)
+        self.player.add(user_id)
+        self.redirect("/account")
 
 
 
@@ -169,6 +225,7 @@ class RegisterHandler(BaseHandler):
 
         self.redirect("/")
 
+
 class LoginHandler(BaseHandler):
     def get(self):
         self.render('login.html')
@@ -184,39 +241,13 @@ class LoginHandler(BaseHandler):
         else:
             user_id = user["id"]
             self.set_secure_cookie("user",str(user_id))
-            self.write(user["name"])
+            self.redirect("/setplayer")
 
 class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
-        self.write("test1234")
-            
-class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
-    def open(self):
-        clients.append(self)
-        print 'new connection'
-        self.write_message("connected")
-        self.play = Player.Player("161.246.5.47")
-        self.play.connect()
-    
-    def on_message(self, message):
-        print 'message received %s' % message
-        self.write_message('message received %s' % message)
-        self.play.run_command(message)
-
-    def post(self):
-        var = self.get_argument('var')
-        self.play_song(var)
-        #self.man = User.User(var)
-        #self.com = Command.PlaySong()
-        #self.result =  self.man.user_player.run_command(self.com,"lalala")
-        #self.write(self.result)
-
-
-    def on_close(self):
-        
-        clients.remove(self)
-        print 'connection closed' 
+        self.clear_cookie("player")
+        self.write("please login  <a href ='/auth/login' >sign in</a>")
 
 def main():
     tornado.options.parse_command_line()

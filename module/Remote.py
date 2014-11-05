@@ -2,15 +2,15 @@ import paramiko
 
 
 class RemoteCommand(object):
-    def __init__(self, player_id):
-        self.player_id = player_id
+    def __init__(self, player_ip):
+        self.player_ip = player_ip
         self.cmd = "sudo /etc/init.d/mediatomb restart"
         self.remote = paramiko.SSHClient()
         self.remote.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def login(self):
-        self.remote.connect(self.player_id,username = "pi",password = "raspberry")
-
+        self.remote.connect(self.player_ip,username = "pi",password = "raspberry")
+        stdin, stdout, stderr = self.remote.exec_command('mpc update')
     def logout(self):
         self.remote.close()
 
