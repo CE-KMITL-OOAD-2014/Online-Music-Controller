@@ -20,6 +20,7 @@
 	<form enctype="multipart/form-data" action="/upload" method="post">File: <input type="file" name="filearg" />
         <br />
         <br />
+        <input hidden type="text" name ="player" value="{{player_ip}}">
         <input type="submit" value="upload" />
         {% module xsrf_form_html() %}
       </form>

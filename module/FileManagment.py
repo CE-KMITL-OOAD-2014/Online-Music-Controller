@@ -18,9 +18,9 @@ class FileManagment():
             fh = open(location + fname, 'w')
             fh.write(fileinfo['body'])
             
-            os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/code") #from server to player
+            os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/song") #from server to player
             print "sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/code"
-            return (fname + " is uploaded!! Check "+location+" folder")
+            print (fname + " is uploaded!! Check "+location+" folder")
         except :
-            return "duplicate_file!!!"
+            print "duplicate_file!!!"
             #self.finish("duplicate_file!!!")

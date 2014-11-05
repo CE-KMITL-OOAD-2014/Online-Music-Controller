@@ -79,7 +79,9 @@ class IndexHandler(BaseHandler):
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render("account.html")
+        player =  self.get_current_player()
+        print player["ip"]
+        self.render("account.html",player_ip = player["ip"])
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -100,15 +102,15 @@ class SetPlayerHandler(BaseHandler):
         player_ip =  self.get_argument("player")   
         player = self.db.get("SELECT * FROM player WHERE ip = %s ",player_ip)
         if not player:
-            self.redirect("/")
+            self.redirect("/")                                    #if dont have player in db
         else:
             player_id = player["id"]
-            self.set_secure_cookie("player",str(player_id))
+            self.set_secure_cookie("player",str(player_id))        # have player in db and set player cookie
             self.redirect("/")
 
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
-        self.play = Player.Player("161.246.6.118")
+        self.play = Player.Player("161.246.5.47")
         self.play.connect()
         renderStr = "<select>"
         playlists = self.play.run_command("get_playlist")
@@ -125,7 +127,8 @@ class PlaylistHandler(tornado.web.RequestHandler):
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         fileinfo = self.request.files['filearg'][0]
-        self.play = Player.Player("161.246.6.118")
+        player_ip = self.get_argument("player")
+        self.play = Player.Player(player_ip)
         self.play.add_file(fileinfo)
         self.redirect("/account")
 

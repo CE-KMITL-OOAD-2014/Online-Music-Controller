@@ -10,7 +10,7 @@ class RemoteCommand(object):
 
     def login(self):
         self.remote.connect(self.player_ip,username = "pi",password = "raspberry")
-
+        stdin, stdout, stderr = self.remote.exec_command('mpc update')
     def logout(self):
         self.remote.close()
 
