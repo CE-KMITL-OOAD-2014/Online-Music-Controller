@@ -57,8 +57,8 @@
 
       <form name ='playlist_list' id ='playlist_list'>
         <select name='playlist_name'>
-          {% for playlis in playlists%}
-            <option value='"{{playlis.playlist_name}}"'>{{playlis.playlist_name}}</option>
+          {% for playlist in playlists%}
+            <option value='"{{playlist.playlist_name}}"'>{{playlist.playlist_name}}</option>
           {%end%}
         </select>
         <input type="submit" id="load_playlist" value="load">
@@ -70,12 +70,7 @@
       <!--  <form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>
         <script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>
         <script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");$("#playlist_list").attr("method","get");$("#playlist_list").submit();}); </script> -->
-      <div>
-      
-      {% autoescape None %}
-        {{ playlist }}
 
-      </div>
 
       <script src="{{ static_url("js/jquery.min.js") }}"></script>
       <script src="{{ static_url("js/bootstrap.min.js") }}"></script>

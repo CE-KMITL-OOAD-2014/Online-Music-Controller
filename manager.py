@@ -77,11 +77,12 @@ class IndexHandler(BaseHandler):
         else:
             player_temp = Player.Player(player.ip)
             player_temp.set_player_id(player.mac)
-            print player_temp.player_id
-            print "b"
             player_temp.update_playlist()
             user = self.get_current_user()
-            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist())
+            playlist = self.db.get("SELECT * FROM playlist WHERE player_id = %s AND playlist_name = 'All'",player.mac)
+            playlist_id = playlist["id"]
+            self.set_secure_cookie("playlist",str(playlist_id))
+            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist())
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
@@ -257,6 +258,7 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.clear_cookie("player")
+        self.clear_cookie("playlist")
         self.write("please login  <a href ='/auth/login' >sign in</a>")
 
 def main():
