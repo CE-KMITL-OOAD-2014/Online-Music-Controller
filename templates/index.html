@@ -54,13 +54,20 @@
 
       
       <br>
-<!--       <form enctype="multipart/form-data" action="/upload" method="post">File: <input type="file" name="filearg" />
-        <br />
-        <br />
-        <input type="submit" value="upload" />
-        {% module xsrf_form_html() %}
-      </form> -->
 
+      <form name ='playlist_list' id ='playlist_list'>
+        <select name='playlist_name'>
+          <option value='"+playlist["playlist_name"]+"'>"+playlist["playlist_name"]+"</option>
+        </select>
+        <input type="submit" id="load_playlist" value="load">
+        <input type="submit" id="edit_playlist" value="edit">
+        </form>
+
+
+        <br>
+      <!--  <form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>
+        <script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>
+        <script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");$("#playlist_list").attr("method","get");$("#playlist_list").submit();}); </script> -->
       <div>
       
       {% autoescape None %}

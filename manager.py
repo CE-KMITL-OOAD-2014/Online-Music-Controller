@@ -82,8 +82,11 @@ class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         player =  self.get_current_player()
-        print player["ip"]
-        self.render("account.html",player_ip = player["ip"])
+        if not player:
+            self.render("account.html",player_ip = "")
+        else:
+            print player["ip"]
+            self.render("account.html",player_ip = player["ip"])
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated

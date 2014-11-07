@@ -2,20 +2,18 @@ from Playlist import Playlist
 from PlaylistRepo import PlaylistRepo
 
 class GetPlaylist():
-	def __init__(self):
-		pass
-	def get_playlist(self,player_id):
-		print "AAAA"
-		try:
-			print "BBBB"
-			pl_repo = PlaylistRepo()
-			returnPlaylist = pl_repo.get_all(player_id)
+    def __init__(self):
+        self.repo = PlaylistRepo()
+        self.playlists = []
+    def get_playlist(self,player_id):
+        self.repo.get_all(player_id)
+        for playlist in self.repo:
+            self.playlist_temp = Playlist(playlist["name"],playlist["player_id"])
+            self.playlists.append(playlist_temp)
+        return self.playlists
 
-			return returnPlaylist
-		except :
-			return "no playlist"
-		
+    
 
-	def add_playlist(self,playlist_name,player_id):
-		pl_repo = PlaylistRepo()
-		pl_repo.add(playlist_name,player_id)
+    # def add_playlist(self,playlist_name,player_id):
+    #   pl_repo = PlaylistRepo()
+    #   pl_repo.add(playlist_name,player_id)

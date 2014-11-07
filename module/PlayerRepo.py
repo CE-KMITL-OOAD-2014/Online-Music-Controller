@@ -13,6 +13,9 @@ class PlayerRepo(object):
             self.db.execute(
                 "INSERT INTO player (mac,ip,owner) VALUES (%s,%s,%s)",mac,ip,owner
                 )
+            self.db.execute(
+                "INSERT INTO playlist (playlist_name,player_id) VALUES ('All',%s)",mac
+                )
         except :
             print "bug"
 
