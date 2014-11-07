@@ -5,11 +5,14 @@ class GetPlaylist():
     def __init__(self):
         self.repo = PlaylistRepo()
         self.playlists = []
+
     def get_playlist(self,player_id):
-        self.repo.get_all(player_id)
-        for playlist in self.repo:
-            self.playlist_temp = Playlist(playlist["name"],playlist["player_id"])
-            self.playlists.append(playlist_temp)
+        playlist_temp = self.repo.get_all(player_id)
+        print len(playlist_temp)
+        for playlist in playlist_temp:
+            self.playlist_temp = Playlist(playlist["playlist_name"],playlist["player_id"])
+            self.playlists.append(self.playlist_temp)
+        print len(self.playlists)
         return self.playlists
 
     

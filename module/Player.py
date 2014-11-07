@@ -58,10 +58,10 @@ class Player():
         self.player = PlayerRepo()   
         self.player.add(self.player_id,self.player_ip,user)
 
-    def get_playlist():
+    def get_playlist(self):
         return self.playlists 
 
-    def update_playlist():
+    def update_playlist(self):
         playlist_repo = GetPlaylist()
         self.playlists = playlist_repo.get_playlist(self.player_id)
 

@@ -75,8 +75,13 @@ class IndexHandler(BaseHandler):
         if not player:
             self.redirect("/setplayer")
         else:
+            player_temp = Player.Player(player.ip)
+            player_temp.set_player_id(player.mac)
+            print player_temp.player_id
+            print "b"
+            player_temp.update_playlist()
             user = self.get_current_user()
-            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
+            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist())
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated

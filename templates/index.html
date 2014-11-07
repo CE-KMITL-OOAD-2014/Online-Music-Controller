@@ -57,7 +57,9 @@
 
       <form name ='playlist_list' id ='playlist_list'>
         <select name='playlist_name'>
-          <option value='"+playlist["playlist_name"]+"'>"+playlist["playlist_name"]+"</option>
+          {% for playlis in playlists%}
+            <option value='"{{playlis.playlist_name}}"'>{{playlis.playlist_name}}</option>
+          {%end%}
         </select>
         <input type="submit" id="load_playlist" value="load">
         <input type="submit" id="edit_playlist" value="edit">
