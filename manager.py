@@ -131,7 +131,9 @@ class PlaylistHandler(tornado.web.RequestHandler):
         except:        
              renderStr = ""
         self.render("index.html",
-                playlist = str(renderStr)
+                playlist = str(renderStr),
+                user = "test",
+                player_ip = "test"
             )
         
     def post(self):

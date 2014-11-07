@@ -1,9 +1,10 @@
 import os
 import subprocess
+from FileRepo import FileRepo
 
 class FileManagment():
     def __init__(self):
-        pass
+        self.file = FileRepo()
 
     def add(self,fileinfo,player_address):
         cwd = subprocess.Popen('pwd', stderr=subprocess.STDOUT,stdout=subprocess.PIPE)
@@ -19,8 +20,10 @@ class FileManagment():
             fh.write(fileinfo['body'])
             
             os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/song") #from server to player
-            print "sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/code"
+            print "sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/song"
             print (fname + " is uploaded!! Check "+location+" folder")
+            self.file.add(fname,player_address,"All")
         except :
             print "duplicate_file!!!"
             #self.finish("duplicate_file!!!")
+       
