@@ -75,19 +75,34 @@ class IndexHandler(BaseHandler):
         if not player:
             self.redirect("/setplayer")
         else:
+            player_temp = Player.Player(player.ip)
+            player_temp.set_player_id(player.mac)
+            player_temp.update_playlist()
             user = self.get_current_user()
-            self.render("index.html",playlist = "",player_ip = player.ip,user = user.name)
+            #playlist = self.db.get("SELECT * FROM playlist WHERE player_id = %s AND playlist_name = 'All'",player.mac)
+            playlist_temp = player_temp.set_playlist("All")
+            playlist_temp.update_filelist(player.ip)
+            files = playlist_temp.get_filelist()
+            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist(),files = files)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         player =  self.get_current_player()
-        if player != None :
+# <<<<<<< HEAD
+#         if player != None :
+#             print player["ip"]
+#             self.render("account.html",player_ip = player["ip"])
+#         else :
+#             print "no player"
+#             self.render("account.html",player_ip = "no player")
+# =======
+        if not player:
+            self.render("account.html",player_ip = "no player")
+        else:
             print player["ip"]
             self.render("account.html",player_ip = player["ip"])
-        else :
-            print "no player"
-            self.render("account.html",player_ip = "no player")
+# >>>>>>> local
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -213,14 +228,19 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
                 self.play.connect()
             except:
                 pass
+
         elif message.find("editpl") == 0:
             print "finddd"
             pl_name = message[6:]
             edit_playlist = EditPlaylistHandlerr()
             print edit_playlist.get_song_list(pl_name)
-        elif message.find("#play") != 0:
+            
+        elif message.find("addpl") == 0:
+            self.play.run_command("add_playlist",message,self.play.player_id)
+
+        elif message.find("play") == 0:
             self.play.run_command(message)
-        
+
         else:
             self.play.run_command("play",message[6:])
 
@@ -286,6 +306,7 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.clear_cookie("player")
+        self.clear_cookie("playlist")
         self.write("please login  <a href ='/auth/login' >sign in</a>")
 
 def main():
