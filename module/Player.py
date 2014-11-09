@@ -4,6 +4,8 @@ import Status
 from Remote import RemoteCommand
 from FileManagment import FileManagment
 from PlayerRepo import PlayerRepo
+from FileRepo import FileRepo
+from Playlist import Playlist
 
 class Player():
     """docstring for Player"""
@@ -45,6 +47,13 @@ class Player():
         elif args[0] == "add_playlist":
             print "add_playlist"+args[1]
             self.playlists.add_playlist(args[1],args[2])
+
+        elif args[0] == "get_playlist_songs":
+            pl = Playlist(args[1])
+            print pl.get_playlist_name()
+            return pl.get_filelist(self.player_ip)
+
+
 
         else:
             #print args[1]

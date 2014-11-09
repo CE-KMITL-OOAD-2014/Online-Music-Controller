@@ -82,8 +82,12 @@ class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         player =  self.get_current_player()
-        print player["ip"]
-        self.render("account.html",player_ip = player["ip"])
+        if player != None :
+            print player["ip"]
+            self.render("account.html",player_ip = player["ip"])
+        else :
+            print "no player"
+            self.render("account.html",player_ip = "no player")
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -121,13 +125,13 @@ class PlaylistHandler(tornado.web.RequestHandler):
         playlists = self.play.run_command("get_playlist",player_id)
         print playlists
         try:
-            renderStr = "<form name ='playlist_list' id ='playlist_list'><select name='playlist_name'>"
+            renderStr = "<form name ='playlist_list' id ='playlist_list'><select id ='playlist_name' name='playlist_name'>"
             for playlist in playlists :
                 renderStr = renderStr+"<option value='"+playlist["playlist_name"]+"'>"+playlist["playlist_name"]+"</option>"
-            renderStr = renderStr+'</select><input type="submit" id="load_playlist" value="load"><input type="submit" id="edit_playlist" value="edit"></form><br>'
+            renderStr = renderStr+'</select><input type="submit" id="load_playlist" value="load"><input type="button" id="edit_playlist" value="edit"></form><br>'
             renderStr = renderStr+'<form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>'
             renderStr = renderStr+'<script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>'
-            renderStr = renderStr+'<script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");$("#playlist_list").attr("method","get");$("#playlist_list").submit();}); </script>'
+            renderStr = renderStr+'<script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");var pl_name = $("#playlist_name").val();sendMsg("editpl"+pl_name);}); </script>'
         except:        
              renderStr = ""
         self.render("index.html",
@@ -137,7 +141,6 @@ class PlaylistHandler(tornado.web.RequestHandler):
             )
         
     def post(self):
-        print "asdfasdgadfadsfasdfasdfasdf"
         print self.get_argument('playlist_name')
         self.redirect("/")
         """Get songs list display to main site"""
@@ -155,7 +158,35 @@ class AddPlaylistHandler(tornado.web.RequestHandler):
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
     def get(self):
-        pass
+        self.play = Player.Player("161.246.5.47")
+        self.play.connect()
+        player_id = "1111"
+        playlist_name = self.get_argument('playlist_name')
+        song_list = self.play.run_command('get_playlist_songs',playlist_name)
+        
+        print song_list
+
+        for song in song_list :
+            print song
+
+class EditPlaylistHandlerr():
+    def __init__(self):
+        self.play = Player.Player("161.246.5.47")
+        self.play.connect()
+        player_id = "1111"
+
+
+    def get_song_list(self,pl_name):
+        #playlist_name = self.get_argument('playlist_name')
+        playlist_name = pl_name
+        song_list = self.play.run_command('get_playlist_songs',playlist_name)
+        
+        print song_list
+
+        for song in song_list :
+            print song
+
+
 
 ###########################################################################################
 class FileManagment(tornado.web.RequestHandler):
@@ -182,8 +213,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
                 self.play.connect()
             except:
                 pass
+        elif message.find("editpl") == 0:
+            print "finddd"
+            pl_name = message[6:]
+            edit_playlist = EditPlaylistHandlerr()
+            print edit_playlist.get_song_list(pl_name)
         elif message.find("#play") != 0:
             self.play.run_command(message)
+        
         else:
             self.play.run_command("play",message[6:])
 

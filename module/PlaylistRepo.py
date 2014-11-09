@@ -22,6 +22,7 @@ class PlaylistRepo(object):
             print "bug"
 
     def get_all(self,player_id):
+        print "Get all"
 
         return self.db.query("SELECT * FROM playlist WHERE player_id = %s ",player_id)
 
