@@ -48,11 +48,22 @@ class Player():
             print "add_playlist"+args[1]
             self.playlists.add_playlist(args[1],args[2])
 
-        elif args[0] == "get_playlist_songs":
-            pl = Playlist(args[1])
-            print pl.get_playlist_name()
-            return pl.get_filelist(self.player_ip)
+        elif args[0] == "delete_file_pl":
+            file_repo = FileRepo()
+            file_repo.delete_from_playlist(self.player_ip,args[1])
 
+        elif args[0] == "add_file_to_pl":
+            file_repo = FileRepo()
+            file_repo.add(args[1],self.player_ip,args[2])
+
+        elif args[0] == "get_playlist_songs":
+            pl = Playlist(args[1],args[2])
+            pl.update_filelist(self.player_ip)
+            file_list =  pl.get_filelist()
+            return_list = []
+            for song in file_list:
+                return_list.append(song.get_file_name())
+            return return_list
 
 
         else:

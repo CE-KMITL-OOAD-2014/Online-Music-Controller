@@ -31,7 +31,7 @@ class Application(tornado.web.Application):
             (r"/auth/logout", LogoutHandler),
             (r"/playlist", PlaylistHandler),
             (r"/playlist/add", AddPlaylistHandler),
-            (r"/playlist/edit", EditPlaylistHandler),     
+            (r"/edit", EditPlaylistHandler),     
             (r"/account",AccountHandler),
             (r"/setplayer",SetPlayerHandler),
             (r"/addplayer",AddPlayerHandler)
@@ -89,20 +89,13 @@ class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         player =  self.get_current_player()
-# <<<<<<< HEAD
-#         if player != None :
-#             print player["ip"]
-#             self.render("account.html",player_ip = player["ip"])
-#         else :
-#             print "no player"
-#             self.render("account.html",player_ip = "no player")
-# =======
+
         if not player:
             self.render("account.html",player_ip = "no player")
         else:
             print player["ip"]
             self.render("account.html",player_ip = player["ip"])
-# >>>>>>> local
+
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -172,7 +165,7 @@ class AddPlaylistHandler(tornado.web.RequestHandler):
         self.redirect("/")
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
-    def get(self):
+    """def get(self):
         self.play = Player.Player("161.246.5.47")
         self.play.connect()
         player_id = "1111"
@@ -182,24 +175,32 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
         print song_list
 
         for song in song_list :
-            print song
+            print song"""
 
-class EditPlaylistHandlerr():
-    def __init__(self):
+    def post(self):
         self.play = Player.Player("161.246.5.47")
         self.play.connect()
         player_id = "1111"
+        pl_name = self.get_argument("playlist_temp")
+        song_list =  self.request.arguments['selected_song']
+        self.play.run_command("delete_file_pl",pl_name)
+        for song in song_list:
+            print song
+            self.play.run_command("add_file_to_pl",song,pl_name)
+        self.redirect("/")
+
+class EditPlaylist():
+    def __init__(self):
+        self.play = Player.Player("161.246.5.47")
+        self.play.connect()
+        self.player_id = "1111"
 
 
     def get_song_list(self,pl_name):
         #playlist_name = self.get_argument('playlist_name')
         playlist_name = pl_name
-        song_list = self.play.run_command('get_playlist_songs',playlist_name)
-        
-        print song_list
-
-        for song in song_list :
-            print song
+        song_list = self.play.run_command('get_playlist_songs',playlist_name,self.player_id)       
+        return song_list
 
 
 
@@ -232,9 +233,18 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         elif message.find("editpl") == 0:
             print "finddd"
             pl_name = message[6:]
-            edit_playlist = EditPlaylistHandlerr()
-            print edit_playlist.get_song_list(pl_name)
+            edit_playlist = EditPlaylist()
+            song_list = edit_playlist.get_song_list(pl_name)
             
+            all_song_list = edit_playlist.get_song_list("All")
+            write_str = ""
+            for song in all_song_list:
+                if song in song_list:
+                    check = "checked"
+                else:
+                    check = ""
+                write_str = write_str+"<input type='checkbox' name='selected_song' value='"+song+"'"+check+">"+song+"<br>"
+            self.write_message("sos"+write_str)
         elif message.find("addpl") == 0:
             self.play.run_command("add_playlist",message,self.play.player_id)
 

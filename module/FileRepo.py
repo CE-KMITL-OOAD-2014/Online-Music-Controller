@@ -2,7 +2,7 @@ import torndb
 
 class FileRepo(object):
     """docstring for Repository"""
-    def __init__(self):
+    def __init__(self):         
         self.db = torndb.Connection(
             host="127.0.0.1:3306", database="myDB",
             user="root", password="root")
@@ -16,6 +16,13 @@ class FileRepo(object):
         except :
             print "bug"
 
+    def delete_from_playlist(self,playler_ip,playlist_name):
+        try:
+            self.db.execute(
+                "DELETE FROM file WHERE player_ip=%s and playlist=%s",name,player_ip,playlist
+                )
+        except :
+            print "bug"
 
 
     def get_from_playlist(self,player_ip,playlist_name):
