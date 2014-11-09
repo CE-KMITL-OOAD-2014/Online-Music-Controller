@@ -14,13 +14,26 @@
         wsocket.onopen = function(){
           var temp1 = $("#ip").text();
           var temp2 = "open ";
+          var temp_id = $("#temp_id").text();
           var ip_msg = temp2.concat(temp1);
-          wsocket.send(ip_msg);  
+          wsocket.send(ip_msg);
+          var id_msg = "#id: ";
+          id_msg = id_msg.concat(temp_id);
+          wsocket.send(id_msg)
           console.log("connected"); 
         }; 
  
         wsocket.onmessage = function (message) {
           console.log("receiving: " + message.data);
+
+          if(IsJson(message.data)){
+            var json = JSON.parse(message.data);
+            $("#file_list").html("");
+            jQuery.each(json,function(){
+
+              $("#file_list").append('<a href="#">'+this.file_name+'</a><br>');
+            });
+          }
         };
  
         wsocket.onclose = function(){
@@ -55,23 +68,23 @@
       
       <br>
 
-      <form name ='playlist_list' id ='playlist_list'>
-        <select name='playlist_name'>
+      <form name ='playlist_list' >
+        <select name='playlist_name' id ='playlist_list'>
           {% for playlist in playlists%}
-            <option value='"{{playlist.playlist_name}}"'>{{playlist.playlist_name}}</option>
+            <option value='{{playlist.playlist_name}}'>{{playlist.playlist_name}}</option>
           {%end%}
         </select>
-        <input type="submit" id="load_playlist" value="load">
+        
         <input type="submit" id="edit_playlist" value="edit">
         </form>
-
+        <input type="button" id="load_playlist" value="load">
 
         <br>
-    
+      <div id ="file_list">
       {% for file in files %}
         <a href="#">{{file.get_file_name()}} </a><br>
       {%end%}
-
+      </div>
       <input type="text" id ="add_playlist"><input type="button" id = "add_button" value="add">
       <!--  <form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>
         <script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>
@@ -79,7 +92,7 @@
       <div id="result">
         
       </div>
-
+      <div id="temp_id">{{temp_id}}</div>
       <script src="{{ static_url("js/jquery.min.js") }}"></script>
       <script src="{{ static_url("js/bootstrap.min.js") }}"></script>
       <script type="text/javascript">
@@ -105,8 +118,34 @@
 
         });
 
+        $('#load_playlist').click(function(){
+          var playlist = $("#playlist_list").val();
+          $("#result").html(playlist);
+          var load_playlist = "loadpl ";
+          load_playlist = load_playlist.concat(playlist);
+          sendMsg(load_playlist);
+            // var add_playlist = "addpl ";
+            // var temp_id = $("#temp_id").text();
+            // add_playlist = add_playlist.concat(playlist);
+            // add_playlist = add_playlist.concat("#id: ");
+            // add_playlist = add_playlist.concat(temp_id);
+            // 
+          
+
+        });
+
         function OnClick(value){
           sendMsg(value);
+        }
+
+        function IsJson(str) {
+          try {
+            JSON.parse(str);
+            } 
+          catch (e) {
+            return false;
+          }
+          return true;
         }
       </script>
     </body>

@@ -45,14 +45,15 @@ class Player():
         #     return self.playlists.get_playlist(args[1])   
 
         elif args[0] == "add_playlist":
-            print "add_playlist"+args[1]
-            self.playlists.add_playlist(args[1],args[2])
+            playlist_repo = GetPlaylist()
+            print "add_playlist "+args[1]
+            playlist_repo.add_playlist(args[1],args[2])
 
         elif args[0] == "get_playlist_songs":
             pl = Playlist(args[1])
             print pl.get_playlist_name()
             return pl.get_filelist(self.player_ip)
-
+        
 
 
         else:
