@@ -79,10 +79,11 @@ class IndexHandler(BaseHandler):
             player_temp.set_player_id(player.mac)
             player_temp.update_playlist()
             user = self.get_current_user()
-            playlist = self.db.get("SELECT * FROM playlist WHERE player_id = %s AND playlist_name = 'All'",player.mac)
-            playlist_id = playlist["id"]
-            self.set_secure_cookie("playlist",str(playlist_id))
-            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist())
+            #playlist = self.db.get("SELECT * FROM playlist WHERE player_id = %s AND playlist_name = 'All'",player.mac)
+            playlist_temp = player_temp.set_playlist("All")
+            playlist_temp.update_filelist()
+            files = playlist_temp.get_filelist()
+            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist(),files = files)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
@@ -191,8 +192,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
                 self.play.connect()
             except:
                 pass
-        elif message.find("#play") != 0:
+            
+        elif message.find("addpl") == 0:
+            self.play.run_command("add_playlist",message,self.play.player_id)
+
+        elif message.find("play") == 0:
             self.play.run_command(message)
+
         else:
             self.play.run_command("play",message[6:])
 

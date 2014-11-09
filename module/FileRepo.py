@@ -16,6 +16,6 @@ class FileRepo(object):
         except :
             print "bug"
 
-    def get_all(self,player_id):
+    def get_all(self,playlist_name,player_ip):
 
-        return self.db.query("SELECT * FROM player WHERE owner = %s ",owner)
+        return self.db.query("SELECT * FROM file WHERE playlist = %s AND  player_ip = %s ",playlist_name,player_ip)

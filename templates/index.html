@@ -67,10 +67,18 @@
 
 
         <br>
+    
+      {% for file in files %}
+        <a href="#">{{file.get_file_name()}} </a><br>
+      {%end%}
+
+      <input type="text" id ="add_playlist"><input type="button" id = "add_button" value="add">
       <!--  <form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>
         <script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>
         <script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");$("#playlist_list").attr("method","get");$("#playlist_list").submit();}); </script> -->
-
+      <div id="result">
+        
+      </div>
 
       <script src="{{ static_url("js/jquery.min.js") }}"></script>
       <script src="{{ static_url("js/bootstrap.min.js") }}"></script>
@@ -80,6 +88,21 @@
           var play = "#play ";
           var res = play.concat(song);
           sendMsg(res);  
+        });
+
+        $('#add_button').click(function(){
+          var playlist = $("#add_playlist").val();
+
+          if(playlist == ""){
+            $("#result").html("zero length") ;
+          }
+          else{
+            $("#result").html(playlist);
+            var add_playlist = "addpl ";
+            add_playlist = add_playlist.concat(playlist);
+            sendMsg(add_playlist);
+          }
+
         });
 
         function OnClick(value){

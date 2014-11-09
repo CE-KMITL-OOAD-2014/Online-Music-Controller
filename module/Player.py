@@ -42,9 +42,9 @@ class Player():
         # elif args[0] == "get_playlist":
         #     return self.playlists.get_playlist(args[1])   
 
-        # elif args[0] == "add_playlist":
-        #     print "add_playlist"+args[1]
-        #     self.playlists.add_playlist(args[1],args[2])
+        elif args[0] == "add_playlist":
+            print "add_playlist"+args[1]
+            self.playlists.add_playlist(args[1],args[2])
 
         else:
             #print args[1]
@@ -60,6 +60,12 @@ class Player():
 
     def get_playlist(self):
         return self.playlists 
+
+    def set_playlist(self,playlist_name):
+        for playlist in self.playlists:
+            if playlist.get_playlist_name() == playlist_name:
+                return playlist
+        return None
 
     def update_playlist(self):
         playlist_repo = GetPlaylist()

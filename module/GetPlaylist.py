@@ -8,11 +8,9 @@ class GetPlaylist():
 
     def get_playlist(self,player_id):
         playlist_temp = self.repo.get_all(player_id)
-        print len(playlist_temp)
         for playlist in playlist_temp:
             self.playlist_temp = Playlist(playlist["playlist_name"],playlist["player_id"])
             self.playlists.append(self.playlist_temp)
-        print len(self.playlists)
         return self.playlists
 
     
