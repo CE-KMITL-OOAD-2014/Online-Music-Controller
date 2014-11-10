@@ -166,17 +166,6 @@ class AddPlaylistHandler(tornado.web.RequestHandler):
         self.redirect("/")
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
-    """def get(self):
-        self.play = Player.Player("161.246.5.47")
-        self.play.connect()
-        player_id = "1111"
-        playlist_name = self.get_argument('playlist_name')
-        song_list = self.play.run_command('get_playlist_songs',playlist_name)
-        
-        print song_list
-
-        for song in song_list :
-            print song"""
 
     def post(self):
         self.play = Player.Player("161.246.5.47")
@@ -220,6 +209,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         clients.append(self)
         print 'new connection'
         self.write_message("connected")
+        self.isEdit = True
+        self.pl_temp = ""
     
     def on_message(self, message):
         print 'message received %s' % message
@@ -240,20 +231,28 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
             playlist_temp.update_filelist(self.play.get_address())
             self.files = playlist_temp.get_filelist()
         elif message.find("editpl") == 0:
-            print "finddd"
             pl_name = message[6:]
-            edit_playlist = EditPlaylist()
-            song_list = edit_playlist.get_song_list(pl_name)
+            if (pl_name != self.pl_temp) and self.isEdit==False:
+                self.isEdit = True
+            if self.isEdit:
+                self.isEdit = False
+                self.pl_temp = pl_name
+                edit_playlist = EditPlaylist()
+                song_list = edit_playlist.get_song_list(pl_name)
             
-            all_song_list = edit_playlist.get_song_list("All")
-            write_str = ""
-            for song in all_song_list:
-                if song in song_list:
-                    check = "checked"
-                else:
-                    check = ""
-                write_str = write_str+"<input type='checkbox' name='selected_song' value='"+song+"'"+check+">"+song+"<br>"
-            self.write_message("sos"+write_str)
+                all_song_list = edit_playlist.get_song_list("All")
+                write_str = ""
+                for song in all_song_list:
+                    if song in song_list:
+                        check = "checked"
+                    else:
+                        check = ""
+                    write_str = write_str+"<input type='checkbox' name='selected_song' value='"+song+"'"+check+">"+song+"<br>"
+                self.write_message("sos"+write_str)
+                
+            else:
+                print "Duplicate"
+
         elif message.find("addpl") == 0:
             print message[6:]
             print self.play.player_id

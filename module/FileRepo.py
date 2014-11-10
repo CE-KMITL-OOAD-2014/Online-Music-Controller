@@ -14,15 +14,17 @@ class FileRepo(object):
                 "INSERT INTO file (name,player_ip,playlist) VALUES (%s,%s,%s)",name,player_ip,playlist
                 )
         except :
-            print "bug"
+            print "addbug"
 
-    def delete_from_playlist(self,playler_ip,playlist_name):
+    def delete_from_playlist(self,player_ip,playlist_name):
+        print "player_ip"+player_ip
+        print "playlist"+playlist_name
         try:
             self.db.execute(
-                "DELETE FROM file WHERE player_ip=%s and playlist=%s",name,player_ip,playlist
+                "DELETE FROM file WHERE player_ip=%s and playlist=%s",player_ip,playlist_name
                 )
         except :
-            print "bug"
+            print "delbug"
 
 
     def get_from_playlist(self,player_ip,playlist_name):
@@ -31,7 +33,7 @@ class FileRepo(object):
         try:
             return self.db.query("SELECT * FROM file WHERE player_ip = %s AND playlist = %s",player_ip,playlist_name)
         except Exception:
-            print "bug"
+            print "getbug"
             return "bug"
             
 
