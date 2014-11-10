@@ -53,12 +53,19 @@ class Player():
             pl = Playlist(args[1])
             print pl.get_playlist_name()
             return pl.get_filelist(self.player_ip)
-        
+
 
 
         else:
-            #print args[1]
-            return self.remote.play_song(args[1])
+            file_qeue = []
+            check = 1
+            for file_ in args[2]:
+                if check and  file_.get_file_name() != args[1]:
+                    pass
+                else:
+                    check = 0
+                    file_qeue.append(file_.get_file_name())
+            return self.remote.play_song(file_qeue)
 
     def add_file(self,file):
         self.adder = FileManagment()

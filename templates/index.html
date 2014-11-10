@@ -31,7 +31,7 @@
             $("#file_list").html("");
             jQuery.each(json,function(){
 
-              $("#file_list").append('<a href="#">'+this.file_name+'</a><br>');
+              $("#file_list").append('<input type="radio" name="file" value="'+this.file_name+'">'+this.file_name+'<br>');
             });
           }
         };
@@ -82,7 +82,7 @@
         <br>
       <div id ="file_list">
       {% for file in files %}
-        <a href="#">{{file.get_file_name()}} </a><br>
+        <input type="radio" name="file" value="{{file.get_file_name()}}">{{file.get_file_name()}}<br>
       {%end%}
       </div>
       <input type="text" id ="add_playlist"><input type="button" id = "add_button" value="add">
@@ -133,7 +133,9 @@
           
 
         });
-
+        $(document).on('change','input[type=radio][name=file]',function() {
+          $("#var").val(this.value);
+        });
         function OnClick(value){
           sendMsg(value);
         }

@@ -225,6 +225,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.write_message('message received %s' % message)
         if message.find("open") == 0:
             self.play = Player.Player(message[5:])
+            self.files = []
             try:
                 self.play.connect()
             except:
@@ -234,7 +235,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
             self.play.set_player_id(message[5:])
             print self.play.player_id
             self.play.update_playlist()
-
+            playlist_temp = self.play.set_playlist("All")
+            playlist_temp.update_filelist(self.play.get_address())
+            self.files = playlist_temp.get_filelist()
         elif message.find("editpl") == 0:
             print "finddd"
             pl_name = message[6:]
@@ -252,15 +255,16 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
             print self.play.player_id
             playlist_temp = self.play.set_playlist(playlist_name)
             playlist_temp.update_filelist(self.play.get_address())
-            files = playlist_temp.get_filelist()
-            file_json = json.dumps(files,default = jdefault)
-            print file_json
+            self.files = playlist_temp.get_filelist()
+            file_json = json.dumps(self.files,default = jdefault)
+            #print file_json
             self.write_message(file_json)
-        elif message.find("play") == 0:
+        
+        elif message.find("#play") != 0:
             self.play.run_command(message)
 
         else:
-            self.play.run_command("play",message[6:])
+            self.play.run_command("play",message[6:],self.files)
 
     def on_close(self):
         
