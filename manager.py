@@ -31,7 +31,7 @@ class Application(tornado.web.Application):
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
             (r"/playlist", PlaylistHandler),
-            (r"/playlist/add", AddPlaylistHandler),
+            #(r"/playlist/add", AddPlaylistHandler),
             (r"/edit", EditPlaylistHandler),     
             (r"/account",AccountHandler),
             (r"/setplayer",SetPlayerHandler),
@@ -80,7 +80,6 @@ class IndexHandler(BaseHandler):
             player_temp.set_player_id(player.mac)
             player_temp.update_playlist()
             user = self.get_current_user()
-            #playlist = self.db.get("SELECT * FROM playlist WHERE player_id = %s AND playlist_name = 'All'",player.mac)
             playlist_temp = player_temp.set_playlist("All")
             playlist_temp.update_filelist(player.ip)
             files = playlist_temp.get_filelist()
@@ -156,14 +155,14 @@ class PlaylistHandler(tornado.web.RequestHandler):
     def set_render_str(self,renderString):
         self.renderStr = renderString
 
-class AddPlaylistHandler(tornado.web.RequestHandler):
-    def post(self):
-        self.play = Player.Player("161.246.5.47")
-        self.play.connect()
-        player_id = "1111"
-        print self.get_argument('new_playlist_name')
-        self.play.run_command("add_playlist",self.get_argument('new_playlist_name'),player_id)
-        self.redirect("/")
+# class AddPlaylistHandler(tornado.web.RequestHandler):
+#     def post(self):
+#         self.play = Player.Player("161.246.5.47")
+#         self.play.connect()
+#         player_id = "1111"
+#         print self.get_argument('new_playlist_name')
+#         self.play.run_command("add_playlist",self.get_argument('new_playlist_name'),player_id)
+#         self.redirect("/")
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
     """def get(self):
