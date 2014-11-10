@@ -1,9 +1,13 @@
+{%extends base.html%}
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Accout Manager</title>
 </head>
 <body>
+
+
+	 {% block body %}
 	<a href="/">Home</a>
     <a href="/setplayer">select player</a>
     <a href="/auth/logout">logout</a><br>
@@ -24,5 +28,7 @@
         <input type="submit" value="upload" />
         {% module xsrf_form_html() %}
       </form>
+
+      {% end %}
 </body>
 </html>
