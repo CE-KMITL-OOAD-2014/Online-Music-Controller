@@ -22,6 +22,7 @@ class Playlist():
     
     def update_filelist(self,player_ip):
       self.repo = FileRepo()
+      self.file_list = []
       self.files = self.repo.get_all(self.playlist_name,player_ip)
       for file_ in self.files:
         self.file_list.append(File(file_["name"]))

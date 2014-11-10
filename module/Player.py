@@ -45,8 +45,9 @@ class Player():
         #     return self.playlists.get_playlist(args[1])   
 
         elif args[0] == "add_playlist":
-            print "add_playlist"+args[1]
-            self.playlists.add_playlist(args[1],args[2])
+            playlist_repo = GetPlaylist()
+            print "add_playlist "+args[1]
+            playlist_repo.add_playlist(args[1],args[2])
 
         elif args[0] == "delete_file_pl":
             file_repo = FileRepo()
@@ -67,8 +68,15 @@ class Player():
 
 
         else:
-            #print args[1]
-            return self.remote.play_song(args[1])
+            file_qeue = []
+            check = 1
+            for file_ in args[2]:
+                if check and  file_.get_file_name() != args[1]:
+                    pass
+                else:
+                    check = 0
+                    file_qeue.append(file_.get_file_name())
+            return self.remote.play_song(file_qeue)
 
     def add_file(self,file):
         self.adder = FileManagment()

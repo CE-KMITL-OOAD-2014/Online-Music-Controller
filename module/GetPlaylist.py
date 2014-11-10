@@ -22,6 +22,6 @@ class GetPlaylist():
 
     
 
-    # def add_playlist(self,playlist_name,player_id):
-    #   pl_repo = PlaylistRepo()
-    #   pl_repo.add(playlist_name,player_id)
+    def add_playlist(self,playlist_name,player_id):
+      pl_repo = PlaylistRepo()
+      pl_repo.add(playlist_name,player_id)

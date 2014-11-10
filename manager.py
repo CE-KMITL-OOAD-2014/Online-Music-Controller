@@ -7,6 +7,7 @@ import tornado.options
 import tornado.web
 import tornado.websocket
 
+import json
 import hashlib
 import os
 import subprocess
@@ -83,7 +84,7 @@ class IndexHandler(BaseHandler):
             playlist_temp = player_temp.set_playlist("All")
             playlist_temp.update_filelist(player.ip)
             files = playlist_temp.get_filelist()
-            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist(),files = files)
+            self.render("index.html",player_ip = player.ip,user = user.name,playlists = player_temp.get_playlist(),files = files,temp_id = player.mac)
 
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
@@ -225,11 +226,19 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.write_message('message received %s' % message)
         if message.find("open") == 0:
             self.play = Player.Player(message[5:])
+            self.files = []
             try:
                 self.play.connect()
             except:
                 pass
 
+        elif message.find("#id: ") == 0:
+            self.play.set_player_id(message[5:])
+            print self.play.player_id
+            self.play.update_playlist()
+            playlist_temp = self.play.set_playlist("All")
+            playlist_temp.update_filelist(self.play.get_address())
+            self.files = playlist_temp.get_filelist()
         elif message.find("editpl") == 0:
             print "finddd"
             pl_name = message[6:]
@@ -246,13 +255,26 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
                 write_str = write_str+"<input type='checkbox' name='selected_song' value='"+song+"'"+check+">"+song+"<br>"
             self.write_message("sos"+write_str)
         elif message.find("addpl") == 0:
-            self.play.run_command("add_playlist",message,self.play.player_id)
+            print message[6:]
+            print self.play.player_id
+            self.play.run_command("add_playlist",message[6:],self.play.player_id)
 
-        elif message.find("play") == 0:
+        elif message.find("loadpl") == 0:
+            playlist_name = message[7:]
+            print playlist_name
+            print self.play.player_id
+            playlist_temp = self.play.set_playlist(playlist_name)
+            playlist_temp.update_filelist(self.play.get_address())
+            self.files = playlist_temp.get_filelist()
+            file_json = json.dumps(self.files,default = jdefault)
+            #print file_json
+            self.write_message(file_json)
+        
+        elif message.find("#play") != 0:
             self.play.run_command(message)
 
         else:
-            self.play.run_command("play",message[6:])
+            self.play.run_command("play",message[6:],self.files)
 
     def on_close(self):
         
@@ -318,6 +340,11 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("player")
         self.clear_cookie("playlist")
         self.write("please login  <a href ='/auth/login' >sign in</a>")
+
+def jdefault(o):
+    if isinstance(o, set):
+        return list(o)
+    return o.__dict__
 
 def main():
     tornado.options.parse_command_line()

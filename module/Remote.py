@@ -14,10 +14,11 @@ class RemoteCommand(object):
     def logout(self):
         self.remote.close()
 
-    def play_song(self,song):
+    def play_song(self,songs):
         stdin, stdout, stderr = self.remote.exec_command('mpc clear')
-        comm = "mpc add "+song
-        stdin, stdout, stderr = self.remote.exec_command(comm)
+        for song in songs:
+            comm = "mpc add "+song
+            stdin, stdout, stderr = self.remote.exec_command(comm)
         stdin, stdout, stderr = self.remote.exec_command('mpc play')
 
     def play_pause(self):
