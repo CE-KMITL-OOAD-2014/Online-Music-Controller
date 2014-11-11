@@ -22,6 +22,11 @@ var wsocket = new WebSocket("ws://161.246.5.32:8888/ws");
             $("#edit_song_list_form").attr("action","/edit");
             $("#edit_song_list_form").attr("method","post");
           }
+
+          else if(message.data.substr(0,6)=="status"){
+            $("#status").val(message.data.substr(6,message.data.length));
+          }
+
           else if(IsJson(message.data)){
             var json = JSON.parse(message.data);
             $("#file_list").html("");

@@ -24,8 +24,8 @@ class Player():
     def connect(self):
         self.remote.login()
 
-    def player_status(self,status):
-        status.get_status(self.get_address())
+    def player_status(self):
+        return self.remote.get_status()
 
     def set_player_id(self,player_id):
         self.player_id = player_id

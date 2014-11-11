@@ -38,4 +38,14 @@ class RemoteCommand(object):
     def next(self):
         stdin, stdout, stderr = self.remote.exec_command('mpc next')
         stdin, stdout, stderr = self.remote.exec_command('mpc status')
-        print stdout.readline()    
+        print stdout.readline()  
+
+    def get_status(self):
+        stdin, stdout, stderr = self.remote.exec_command('mpc status')
+        status = stdout.readline()
+        print status
+        if status.find(".mp3") != -1:
+            return status
+        elif status.find(".wav") != -1:
+            return status
+        return "Idle"

@@ -125,7 +125,6 @@ class SetPlayerHandler(BaseHandler):
             self.redirect("/")
 
 
-###########################################################################################
 
 class PlaylistHandler(tornado.web.RequestHandler):
     def get(self):
@@ -157,21 +156,15 @@ class PlaylistHandler(tornado.web.RequestHandler):
     def set_render_str(self,renderString):
         self.renderStr = renderString
 
-# class AddPlaylistHandler(tornado.web.RequestHandler):
-#     def post(self):
-#         self.play = Player.Player("161.246.5.47")
-#         self.play.connect()
-#         player_id = "1111"
-#         print self.get_argument('new_playlist_name')
-#         self.play.run_command("add_playlist",self.get_argument('new_playlist_name'),player_id)
-#         self.redirect("/")
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
 
     def post(self):
-        self.play = Player.Player("161.246.5.47")
+        player_ip = self.get_argument("edpl_ip")
+        player_id = self.get_argument("edpl_id")
+        self.play = Player.Player(player_ip)
         self.play.connect()
-        player_id = "1111"
+        player_id = player_id
         pl_name = self.get_argument("playlist_temp")
         try:
             song_list =  self.request.arguments['selected_song']
@@ -184,21 +177,18 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
         self.redirect("/")
 
 class EditPlaylist():
-    def __init__(self):
-        self.play = Player.Player("161.246.5.47")
+    def __init__(self,player_ip,player_id):
+        self.play = Player.Player(player_ip)
         self.play.connect()
-        self.player_id = "1111"
+        self.player_id = player_id
 
 
     def get_song_list(self,pl_name):
-        #playlist_name = self.get_argument('playlist_name')
         playlist_name = pl_name
         song_list = self.play.run_command('get_playlist_songs',playlist_name,self.player_id)       
         return song_list
 
 
-
-###########################################################################################
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         fileinfo = self.request.files['filearg'][0]
@@ -241,7 +231,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
             if self.isEdit:
                 self.isEdit = False
                 self.pl_temp = pl_name
-                edit_playlist = EditPlaylist()
+                edit_playlist = EditPlaylist(self.play.player_ip,self.play.player_id)
                 song_list = edit_playlist.get_song_list(pl_name)
             
                 all_song_list = edit_playlist.get_song_list("All")
@@ -344,6 +334,11 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("playlist")
         self.render("logout.html")
 
+def SendStatus():
+    for c in clients:
+        status =  c.play.player_status()
+        c.write_message("status "+status)
+
 def jdefault(o):
     if isinstance(o, set):
         return list(o)
@@ -353,6 +348,8 @@ def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
+    scheduler = tornado.ioloop.PeriodicCallback(SendStatus, 1000)
+    scheduler.start()
     tornado.ioloop.IOLoop.instance().start()
             
                  
