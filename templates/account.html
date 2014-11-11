@@ -5,30 +5,36 @@
 	<title>Accout Manager</title>
 </head>
 <body>
-
+  
+  
+    
 
 	 {% block body %}
-	<a href="/">Home</a>
-    <a href="/setplayer">select player</a>
-    <a href="/auth/logout">logout</a><br>
+   <div class="container">
+   <div class="row">
+   <div class="col-md-6">
+   <h1>Add Player</h1>
 	<form  action="/addplayer" method="post">MAC: 
-		<input type="text" name="mac" /> IP :
-		<input type="text" name="ip" />
-        <input type="submit" value="add device" />
+		<input type="text" class="form-control" name="mac" /><br> IP :
+		<input type="text" class="form-control" name="ip" /><br>
+        <input type="submit" class="btn btn-info" value="add device" />
         <br />
         <br />
         {% module xsrf_form_html() %}
       </form>	
-
-
-	<form enctype="multipart/form-data" action="/upload" method="post">File: <input type="file" name="filearg" />
+  </div>
+  <div class="col-md-6">
+  <h1>Add File</h1>
+	<form enctype="multipart/form-data"  action="/upload" method="post">File: <input type="file" name="filearg" />
         <br />
         <br />
         <input hidden type="text" name ="player" value="{{player_ip}}">
-        <input type="submit" value="upload" />
+        <input type="submit" class="btn btn-info" value="upload" />
         {% module xsrf_form_html() %}
       </form>
-
+  </div>
+  </div>
+  </div>
       {% end %}
 </body>
 </html>

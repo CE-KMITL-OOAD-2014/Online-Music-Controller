@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Choose Player</title>
-</head>
-<body>
+{%extends base.html%}
+
+	{%block body%}
+	<div class="container">
 		<form  action="/setplayer" method="post">
 			{% module xsrf_form_html() %}
 		{% for play in players%}
 		<input type="radio" name = "player" value="{{ play.player_ip }}">{{ play.player_id }} :: {{ play.player_ip }}
 		<br>
 	{%end%}
-	<input type="submit">
-</body>
-</html>
+	<br>
+	<input class="btn btn-warning" type="submit">
+
+	</div>
+	{%end%}

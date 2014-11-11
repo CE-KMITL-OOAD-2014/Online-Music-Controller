@@ -9,59 +9,105 @@
   {% block header %}
   {%end%}
   {%block body%}
-  <h1>{{brand}}</h1>
-  <h3>IP : {{player_ip}}</h3>
-  <div hidden id = "ip" >{{player_ip}}</div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="row">
+          <h1>{{brand}}</h1>
+          <h3>IP : {{player_ip}}</h3>
+          <div hidden id = "ip" >{{player_ip}}</div>
+          
+        </div>
+        <div class="row">
+          <input class="form-control" disabled type="text" id="var" >
+          <!--  <button   > play</button> -->
 
-  test data <input type="text" id="var" >
-  <button id = "play"  > play</button>
+          <button type="button" id = "play" class="btn btn-default btn-block">
+            <span class="glyphicon glyphicon-play"></span>
+          </button>
+          <div class="row">
+            <div class="col-md-4">
+              <button name="previous" value="previous" class="btn btn-default btn-block" onclick="OnClick('previous')">
+                <span class="glyphicon glyphicon-backward"></span>
 
-  <button name="previous" value="previous" onclick="OnClick('previous')"> previous</button>
-  <button name="play_pause" value="play_pause" onclick="OnClick('play_pause')"> Play/Pause</button>
-  <button name="next" value="next" onclick="OnClick('next')"> next </button>     
-  <br>
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button name="play_pause" value="play_pause" class="btn btn-default btn-block" onclick="OnClick('play_pause')"> 
+                <span class="glyphicon glyphicon-play"></span>
+                <span class="glyphicon glyphicon-pause"></span>
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button name="next" value="next" class="btn btn-default btn-block" onclick="OnClick('next')"> 
+                <span class="glyphicon glyphicon-forward"></span> 
+              </button>  
+            </div>   
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <form name ='playlist_list' id ='playlist_list'>
+          <select id = "playlist_name" class="form-control" name='playlist_name'>
+            {% for playlist in playlists%}
+            <option value='{{playlist.playlist_name}}'>{{playlist.playlist_name}}</option>
+            {%end%}
+          </select>
+        </form>
+        <div class="row">
+          <div class="col-md-6">
+            <input type="button" id="load_playlist" class="btn btn-success btn-block" value="load">
+          </div>
+          <div class="col-md-6">
+            <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#test">Edit</button>
+          </div>
+        </div>
+        <div id ="file_list">
+         {% for file in files %}
+         <input type="radio" name="file" value="{{file.get_file_name()}}">{{file.get_file_name()}}<br>
+         {%end%}
+       </div>
+     </div>
 
-
-  <form name ='playlist_list' id ='playlist_list'>
-    <select id = "playlist_name" name='playlist_name'>
-
-      {% for playlist in playlists%}
-      <option value='{{playlist.playlist_name}}'>{{playlist.playlist_name}}</option>
-      {%end%}
-    </select>
-
-    <input type="button" id="edit_playlist" value="edit">
-
-  </form>
-  <input type="button" id="load_playlist" value="load">
-
-  <br>
-  <div id ="file_list">
-    {% for file in files %}
-    <input type="radio" name="file" value="{{file.get_file_name()}}">{{file.get_file_name()}}<br>
-    {%end%}
   </div>
+  <div id="temp_id" hidden>{{temp_id}} </div>
+</div>
 
-  <form id="edit_song_list_form">
 
-    <div id="edit_song_list">
-      <input id="playlist_temp" name="playlist_temp"></input><br>
+
+<div class="modal fade " id ="test" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content container-fluid">
+      <div class="col-md-6">
+        <form id="edit_song_list_form">
+        <div class="col-md-3">
+        <input type="button" id="edit_playlist" class="btn btn-primary "  value="edit">
+        </div>
+        <div class="col-md-9">
+        <input class="form-control" id="playlist_temp" name="playlist_temp"></input>
+        </div>
+          <div id="edit_song_list">
+
+          </div>
+
+        </form>
+        
+      </div>
+      <div class="col-md-6">
+        <div class="col-md-3">
+        <input type="button" class="btn btn-primary " id = "add_button" value="add">
+        </div>
+        <div class="col-md-9">
+        <input type="text" class="form-control" id ="add_playlist">
+        </div>
+      </div>
     </div>
-
-  </form>
-
-
-  <input type="text" id ="add_playlist"><input type="button" id = "add_button" value="add">
-
-  <div id="result">
-
   </div>
-
-  <div id="temp_id">{{temp_id}}</div>
-  {%end%}
-  {% block extend_tail %}
-  <script src="{{ static_url("js/event.js") }}" type="text/javascript"></script>
-  {% end %}
+</div>
+{%end%}
+{% block extend_tail %}
+<script src="{{ static_url("js/event.js") }}" type="text/javascript"></script>
+{% end %}
 
 
 </body>

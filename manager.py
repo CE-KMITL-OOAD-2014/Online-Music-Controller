@@ -108,7 +108,10 @@ class SetPlayerHandler(BaseHandler):
         else:
             self.render(
                     "player_list.html",
-                    players = player_temp
+                    brand = "Controller",
+                    page_title = "Choose Player",
+                    players = player_temp,
+                    dest ="/"
                 )
 
     def post(self):
@@ -339,7 +342,7 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("user")
         self.clear_cookie("player")
         self.clear_cookie("playlist")
-        self.write("please login  <a href ='/auth/login' >sign in</a>")
+        self.render("logout.html")
 
 def jdefault(o):
     if isinstance(o, set):
