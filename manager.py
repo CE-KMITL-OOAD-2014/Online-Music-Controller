@@ -34,6 +34,8 @@ class Application(tornado.web.Application):
             (r"/edit", EditPlaylistHandler),     
             (r"/account",AccountHandler),
             (r"/setplayer",SetPlayerHandler),
+            (r"/nowplay",SongAPIHandler),
+            (r"/listplayer",PlayerAPIHandler),
             (r"/addplayer",AddPlayerHandler)
         ]
         settings = dict(
@@ -67,6 +69,7 @@ class BaseHandler(tornado.web.RequestHandler):
         player_id = self.get_secure_cookie("player")
         if not player_id: return None
         return self.db.get("SELECT * FROM player WHERE id = %s", int(player_id))
+
 
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
@@ -196,6 +199,39 @@ class FileManagment(tornado.web.RequestHandler):
         self.play = Player.Player(player_ip)
         self.play.add_file(fileinfo)
         self.redirect("/account")
+
+class SongAPIHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        player =  self.get_current_player()
+        if not player:
+            self.write("<script>alert('No current player');</script>")
+            self.redirect("/")
+        else:
+            player_temp = Player.Player(player.ip)
+            print player.ip
+            try:
+                player_temp.connect()
+            except:
+                pass
+            status = player_temp.player_status()
+            self.write(status)
+
+class PlayerAPIHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        user_id = self.get_secure_cookie("user")
+        self.user = User.User(user_id)
+        self.user.update_player_list()
+        player_temp = self.user.get_players()
+        if not player_temp:
+            self.write("<script>alert('No your own player');</script>")
+            self.redirect("/")
+        else:
+            player_json = json.dumps(player_temp,default = jdefault)
+            #print file_json
+            self.write(player_json)
+
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
