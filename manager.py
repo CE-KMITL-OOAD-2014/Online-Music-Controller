@@ -13,7 +13,7 @@ import os
 import subprocess
 from module.PlayerRepo import PlayerRepo
 from tornado.options import define, options
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=443, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
 define("mysql_database", default="myDB", help="blog database name")
 define("mysql_user", default="root", help="blog database user")
@@ -42,6 +42,7 @@ class Application(tornado.web.Application):
             blog_title=u"Tornado Blog",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
+            
             xsrf_cookies=False,
             cookie_secret="bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
             login_url="/auth/login",
@@ -382,7 +383,10 @@ def jdefault(o):
 
 def main():
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(Application())
+    http_server = tornado.httpserver.HTTPServer(Application(),ssl_options = {
+            "certfile": os.path.join("/home/sayong/Work/cert/","server.crt"),
+            "keyfile": os.path.join("/home/sayong/Work/cert/","server.key"),
+            })
     http_server.listen(options.port)
     scheduler = tornado.ioloop.PeriodicCallback(SendStatus, 1000)
     scheduler.start()
