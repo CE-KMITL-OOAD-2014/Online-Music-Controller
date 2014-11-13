@@ -14,7 +14,7 @@ var wsocket = new WebSocket("wss://161.246.5.31:443/ws");
         }; 
  
         wsocket.onmessage = function (message) {
-          console.log("receiving: " + message.data);
+          //console.log("receiving: " + message.data);
 
 
           if(message.data.substr(0,3)=="sos"){

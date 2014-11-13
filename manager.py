@@ -46,7 +46,7 @@ class Application(tornado.web.Application):
             xsrf_cookies=False,
             cookie_secret="bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
             login_url="/auth/login",
-            debug=True,
+            debug=False,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
