@@ -1,4 +1,4 @@
-var wsocket = new WebSocket("wss://161.246.5.32:443/ws");
+var wsocket = new WebSocket("wss://161.246.5.31:443/ws");
 
     
         wsocket.onopen = function(){

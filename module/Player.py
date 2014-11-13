@@ -13,8 +13,6 @@ class Player():
         self.player_id = ""
         self.player_ip = player_ip
         self.playlists = []
-        self.mem_status = ""
-        self.ctrl_status = ""
 
         self.remote = RemoteCommand(player_ip)
         
