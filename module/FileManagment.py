@@ -18,12 +18,11 @@ class FileManagment():
         try:
             fh = open(location + fname, 'w')
             fh.write(fileinfo['body'])
-            
             os.system("sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/song") #from server to player
             print "sshpass -p raspberry scp "+location+fname+" pi@"+player_address+":/home/pi/song"
             print (fname + " is uploaded!! Check "+location+" folder")
             self.file.add(fname,player_address,"All")
         except :
             print "duplicate_file!!!"
-            #self.finish("duplicate_file!!!")
+            
        

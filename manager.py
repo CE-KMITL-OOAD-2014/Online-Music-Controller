@@ -36,7 +36,8 @@ class Application(tornado.web.Application):
             (r"/setplayer",SetPlayerHandler),
             (r"/nowplay",SongAPIHandler),
             (r"/listplayer",PlayerAPIHandler),
-            (r"/addplayer",AddPlayerHandler)
+            (r"/addplayer",AddPlayerHandler),
+            (r"/remove",RemoveHandler)
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -99,6 +100,23 @@ class AccountHandler(BaseHandler):
             print player["ip"]
             self.render("account.html",page_title = "Accout Manager",user = "test",player_ip = player["ip"],dest ="/",brand = "Controller")
 
+
+class RemoveHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        player =  self.get_current_player()
+
+        if not player:
+            self.redirect("/setplayer")
+        else:
+            player_temp = Player.Player(player.ip)
+            player_temp.set_player_id(player.mac)
+            player_temp.update_playlist()
+            user = self.get_current_user()
+            playlist_temp = player_temp.set_playlist("All")
+            playlist_temp.update_filelist(player.ip)
+            files = playlist_temp.get_filelist()
+            self.render("remove.html",page_title ="Controller",player_ip = player.ip,dest ="/account",brand = user.name,files = files)            
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
