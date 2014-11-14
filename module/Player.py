@@ -1,6 +1,5 @@
 from GetPlaylist import GetPlaylist
 from File import File
-import Status
 from Remote import RemoteCommand
 from FileManagment import FileManagment
 from PlayerRepo import PlayerRepo

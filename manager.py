@@ -1,17 +1,19 @@
-from module import User,Player,Command
+from module import User,Player
+from module.PlayerRepo import PlayerRepo
 
-import torndb
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.websocket
 
+import torndb
 import json
 import hashlib
-import os
 import subprocess
-from module.PlayerRepo import PlayerRepo
+import os
+
+
 from tornado.options import define, options
 define("port", default=443, help="run on the given port", type=int)
 define("mysql_host", default="127.0.0.1:3306", help="blog database host")
