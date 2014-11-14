@@ -1,0 +1,16 @@
+{%extends base.html%}
+
+	{%block body%}
+	<div class="container text-center">
+		<form  action="/remove" method="post">
+			{% module xsrf_form_html() %}
+		{% for file in files%}
+		<input type="radio" name = "filename" value="{{ file.get_file_name() }}">{{ file.get_file_name() }} 
+		<br>
+	{%end%}
+	<br>
+	<input class="btn btn-danger" type="submit" value="Remove">
+	<input type ="text" value="{{ player_ip }}" name="player_ip" hidden >
+		</form>
+	</div>
+	{%end%}

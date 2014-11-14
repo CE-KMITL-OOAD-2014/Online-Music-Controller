@@ -41,3 +41,10 @@ class FileRepo(object):
 
         return self.db.query("SELECT * FROM file WHERE playlist = %s AND  player_ip = %s ",playlist_name,player_ip)
 
+    def delete_file(self,file_name,player_ip):
+        try:
+            self.db.execute(
+                "DELETE FROM file WHERE name=%s and player_ip=%s ",file_name,player_ip
+                )
+        except :
+            print "delf_bug"

@@ -66,7 +66,10 @@ class Player():
 
         elif args[0] == "remove":
             file_management = FileManagment()
-            file_management.remove(args[1],self.player_ip)
+            file_name = args[1]
+            file_management.remove(file_name,self.player_ip)
+            file_repo = FileRepo()
+            file_repo.delete_file(file_name,self.player_ip)
 
         else:
             file_qeue = []
