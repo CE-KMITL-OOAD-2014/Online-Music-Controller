@@ -64,6 +64,9 @@ class Player():
                 return_list.append(song.get_file_name())
             return return_list
 
+        elif args[0] == "remove":
+            file_management = FileManagment()
+            file_management.remove(args[1],self.player_ip)
 
         else:
             file_qeue = []
@@ -75,6 +78,7 @@ class Player():
                     check = 0
                     file_qeue.append(file_.get_file_name())
             return self.remote.play_song(file_qeue)
+
 
     def add_file(self,file):
         self.adder = FileManagment()

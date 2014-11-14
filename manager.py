@@ -100,6 +100,34 @@ class AccountHandler(BaseHandler):
             self.render("account.html",page_title = "Accout Manager",user = "test",player_ip = player["ip"],dest ="/",brand = "Controller")
 
 
+
+class RemoveHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        player =  self.get_current_player()
+
+        if not player:
+            self.redirect("/setplayer")
+        else:
+            player_temp = Player.Player(player.ip)
+            player_temp.set_player_id(player.mac)
+            player_temp.update_playlist()
+            user = self.get_current_user()
+            playlist_temp = player_temp.set_playlist("All")
+            playlist_temp.update_filelist(player.ip)
+            files = playlist_temp.get_filelist()
+            self.render("remove.html",page_title ="Controller",player_ip = player.ip,dest ="/account",brand = user.name,files = files)
+
+    def post(self):
+        player_ip = self.get_argument["player_ip"]
+        player_temp = Player.Player(player_ip)
+        player_temp.run_command("remove",self.get_argument["file_name"])
+        self.redirect("/account")
+
+
+
+
+
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -197,8 +225,8 @@ class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
         fileinfo = self.request.files['filearg'][0]
         player_ip = self.get_argument("player")
-        self.play = Player.Player(player_ip)
-        self.play.add_file(fileinfo)
+        self.player = Player.Player(player_ip)
+        self.player.add_file(fileinfo)
         self.redirect("/account")
 
 class SongAPIHandler(BaseHandler):

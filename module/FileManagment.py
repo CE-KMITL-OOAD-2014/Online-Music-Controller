@@ -27,3 +27,8 @@ class FileManagment():
             print "duplicate_file!!!"
             #self.finish("duplicate_file!!!")
        
+    def remove(self,file_name,player_address):
+        try:
+            os.system("sshpass -p pi@%s raspberry rm /home/pi/song/%s",(player_address,file_name))
+        except :
+            print "remove is bug"
