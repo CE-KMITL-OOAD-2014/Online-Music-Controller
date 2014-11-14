@@ -339,7 +339,10 @@ class AddPlayerHandler(BaseHandler):
         user_id = self.get_secure_cookie("user")
         self.player = Player.Player(self.ip)
         self.player.set_player_id(self.mac)
-        self.player.add(user_id)
+        try:
+            self.player.add(user_id)
+        except:
+            self.render("wrong.html")
         self.redirect("/account")
 
 
@@ -347,7 +350,7 @@ class AddPlayerHandler(BaseHandler):
 class RegisterHandler(BaseHandler):
 
     def get(self):
-        self.render("regis.html")
+        self.render("regis.html",status="")
 
     def post(self):
         self.name = self.get_argument("name")
@@ -360,14 +363,14 @@ class RegisterHandler(BaseHandler):
                 "INSERT INTO user (name,email,password) VALUES (%s,%s,%s)",self.name,self.mail,self.hash.hexdigest()
                 )
         except :
-            self.redirect("/")
+            self.render("regis.html",status ="username or email has already taken !!")
 
         self.redirect("/")
 
 
 class LoginHandler(BaseHandler):
     def get(self):
-        self.render('login.html')
+        self.render('login.html',status="")
 
     def post(self):
         self.name = self.get_argument("name")
@@ -376,7 +379,7 @@ class LoginHandler(BaseHandler):
         self.hash.update(self.password)
         user = self.db.get("SELECT * FROM user WHERE name = %s AND password = %s",self.name,self.hash.hexdigest())
         if not user:
-            self.redirect("/")
+            self.render("login.html",status ="username or password invalid !!")
         else:
             user_id = user["id"]
             self.set_secure_cookie("user",str(user_id))
@@ -402,8 +405,8 @@ def jdefault(o):
 def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application(),ssl_options = {
-            "certfile": os.path.join("/home/sayong/Work/cert/","server.crt"),
-            "keyfile": os.path.join("/home/sayong/Work/cert/","server.key"),
+            "certfile": os.path.join("../cert/","server.crt"),
+            "keyfile": os.path.join("../cert/","server.key"),
             })
     http_server.listen(options.port)
     scheduler = tornado.ioloop.PeriodicCallback(SendStatus, 1000)

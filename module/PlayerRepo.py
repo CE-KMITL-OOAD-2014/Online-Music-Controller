@@ -9,15 +9,14 @@ class PlayerRepo(object):
 
     def add(self,mac,ip,owner):
 
-        try:
+
             self.db.execute(
                 "INSERT INTO player (mac,ip,owner) VALUES (%s,%s,%s)",mac,ip,owner
                 )
             self.db.execute(
                 "INSERT INTO playlist (playlist_name,player_id) VALUES ('All',%s)",mac
                 )
-        except :
-            print "bug"
+ 
 
     def get_all(self,owner):
 

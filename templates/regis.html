@@ -15,6 +15,7 @@
 	<h1  class="text-center">Register</h1>
 	<form action="/regis" method="POST">
 	{% module xsrf_form_html() %}
+		<font color="red">{{status}}</font><br>
 		username <input type="text" class="form-control" name="name"><br>
 		email <input type="text" class="form-control" name="email"><br>
 		password <input type="password" class="form-control" name="password">
