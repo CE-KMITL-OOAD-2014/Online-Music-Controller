@@ -29,34 +29,39 @@ class Player():
         self.player_id = player_id
 
     def run_command(self,*args) :
+        
+        # args[0] is command 
 
         if args[0] == "play_pause" :
-            #self.com = Command.PlayPause()
             return self.remote.play_pause()
+        
         elif args[0] == "next":
-            #self.com = Command.Next() 
             return self.remote.next()
+        
         elif args[0] == "previous":
             return self.remote.previous()
         
-        # elif args[0] == "get_playlist":
-        #     return self.playlists.get_playlist(args[1])   
-
         elif args[0] == "add_playlist":
+            playlist_name = args[1]
+            player_id = args[2]
             playlist_repo = GetPlaylist()
-            print "add_playlist "+args[1]
-            playlist_repo.add_playlist(args[1],args[2])
+            playlist_repo.add_playlist(playlist_name,player_id)
 
         elif args[0] == "delete_file_pl":
+            playlist_name = args[1]
             file_repo = FileRepo()
-            file_repo.delete_from_playlist(self.player_ip,args[1])
+            file_repo.delete_from_playlist(self.player_ip,playlist_name)
 
         elif args[0] == "add_file_to_pl":
+            file_name = args[1]
+            playlist_name = args[2]
             file_repo = FileRepo()
-            file_repo.add(args[1],self.player_ip,args[2])
+            file_repo.add(file_name,self.player_ip,playlist_name)
 
         elif args[0] == "get_playlist_songs":
-            pl = Playlist(args[1],args[2])
+            playlist_name = args[1]
+            player_id = args[2]
+            pl = Playlist(playlist_name,player_id)
             pl.update_filelist(self.player_ip)
             file_list =  pl.get_filelist()
             return_list = []
@@ -72,15 +77,18 @@ class Player():
             file_repo.delete_file(file_name,self.player_ip)
 
         else:
-            file_qeue = []
+            #Play Song 
+            file_queue = []
             check = 1
-            for file_ in args[2]:
-                if check and  file_.get_file_name() != args[1]:
+            file_list = args[2]
+            file_name = args[1]
+            for file_ in file_list:
+                if check and  file_.get_file_name() != file_name:
                     pass
                 else:
                     check = 0
-                    file_qeue.append(file_.get_file_name())
-            return self.remote.play_song(file_qeue)
+                    file_queue.append(file_.get_file_name())
+            return self.remote.play_song(file_queue)
 
 
     def add_file(self,file):

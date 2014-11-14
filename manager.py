@@ -161,7 +161,7 @@ class PlaylistHandler(tornado.web.RequestHandler):
         self.play.connect()
         player_id = "1111"
         playlists = self.play.run_command("get_playlist",player_id)
-        print playlists
+
         try:
             renderStr = "<form name ='playlist_list' id ='playlist_list'><select id ='playlist_name' name='playlist_name'>"
             for playlist in playlists :
@@ -179,8 +179,9 @@ class PlaylistHandler(tornado.web.RequestHandler):
             )
         
     def post(self):
-        print self.get_argument('playlist_name')
         self.redirect("/")
+
+
         """Get songs list display to main site"""
     def set_render_str(self,renderString):
         self.renderStr = renderString
@@ -235,7 +236,7 @@ class SongAPIHandler(BaseHandler):
             self.redirect("/")
         else:
             player_temp = Player.Player(player.ip)
-            print player.ip
+
             try:
                 player_temp.connect()
             except:
@@ -281,7 +282,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
 
         elif message.find("#id: ") == 0:
             self.play.set_player_id(message[5:])
-            print self.play.player_id
             self.play.update_playlist()
             playlist_temp = self.play.set_playlist("All")
             playlist_temp.update_filelist(self.play.get_address())
@@ -310,14 +310,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
                 print "Duplicate"
 
         elif message.find("addpl") == 0:
-            print message[6:]
-            print self.play.player_id
             self.play.run_command("add_playlist",message[6:],self.play.player_id)
 
         elif message.find("loadpl") == 0:
             playlist_name = message[7:]
-            print playlist_name
-            print self.play.player_id
             playlist_temp = self.play.set_playlist(playlist_name)
             playlist_temp.update_filelist(self.play.get_address())
             self.files = playlist_temp.get_filelist()
