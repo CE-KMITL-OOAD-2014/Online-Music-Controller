@@ -3,6 +3,6 @@ python:
   - "2.6"
   - "2.7"
 # command to install dependencies
-
+sudo pip install mock
 # command to run tests
 script: python test.py
