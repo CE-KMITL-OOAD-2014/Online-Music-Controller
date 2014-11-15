@@ -1,6 +1,6 @@
 import paramiko
 
-
+# send real command to control player 
 class RemoteCommand(object):
     def __init__(self, player_ip):
         self.player_ip = player_ip

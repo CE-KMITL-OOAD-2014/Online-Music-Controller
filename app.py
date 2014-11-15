@@ -25,6 +25,8 @@ clients = []
 
 class Application(tornado.web.Application):
     def __init__(self): 
+
+        # all route 
         handlers = [
             (r"/", IndexHandler),
             (r"/ws", WebSocketHandler),
@@ -32,7 +34,6 @@ class Application(tornado.web.Application):
             (r"/regis", RegisterHandler),               
             (r"/auth/login", LoginHandler),
             (r"/auth/logout", LogoutHandler),
-            (r"/playlist", PlaylistHandler),
             (r"/edit", EditPlaylistHandler),     
             (r"/account",AccountHandler),
             (r"/setplayer",SetPlayerHandler),
@@ -75,6 +76,8 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.db.get("SELECT * FROM player WHERE id = %s", int(player_id))
 
 
+# first page handler 
+# render web page to user
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -91,6 +94,9 @@ class IndexHandler(BaseHandler):
             files = playlist_temp.get_filelist()
             self.render("index.html",page_title ="Controller",player_ip = player.ip,dest ="/account",brand = user.name,playlists = player_temp.get_playlist(),files = files,temp_id = player.mac)
 
+
+# account page handler
+# render account setting page
 class AccountHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -102,7 +108,9 @@ class AccountHandler(BaseHandler):
             self.render("account.html",page_title = "Accout Manager",user = "test",player_ip = player["ip"],dest ="/",brand = "Controller")
 
 
-
+# remove file handler
+# get method for render page to user so user can pick a file they want to remove from selected player
+# post method for get a selected file's name and remove it 
 class RemoveHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -125,6 +133,12 @@ class RemoveHandler(BaseHandler):
         player_temp = Player.Player(player_ip)
         player_temp.run_command("remove",self.get_argument("filename"))
         self.redirect("/account")
+
+
+# select player handler
+# get method for render select player page 
+## user with no player are redirect to add player page
+# post method for add user's player to cookie
 
 class SetPlayerHandler(BaseHandler):
     @tornado.web.authenticated
@@ -155,38 +169,7 @@ class SetPlayerHandler(BaseHandler):
             self.redirect("/")
 
 
-
-class PlaylistHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.play = Player.Player("161.246.5.47")
-        self.play.connect()
-        player_id = "1111"
-        playlists = self.play.run_command("get_playlist",player_id)
-
-        try:
-            renderStr = "<form name ='playlist_list' id ='playlist_list'><select id ='playlist_name' name='playlist_name'>"
-            for playlist in playlists :
-                renderStr = renderStr+"<option value='"+playlist["playlist_name"]+"'>"+playlist["playlist_name"]+"</option>"
-            renderStr = renderStr+'</select><input type="submit" id="load_playlist" value="load"><input type="button" id="edit_playlist" value="edit"></form><br>'
-            renderStr = renderStr+'<form method="post" action="/playlist/add"><input type="text" name="new_playlist_name"><input type="submit" value="add" action="/playlist/add" method="post"></form>'
-            renderStr = renderStr+'<script> $("#load_playlist").click(function(){$("#playlist_list").attr("action","/playlist");$("#playlist_list").attr("method","post");$("#playlist_list").submit();}); </script>'
-            renderStr = renderStr+'<script> $("#edit_playlist").click(function(){$("#playlist_list").attr("action","/playlist/edit");var pl_name = $("#playlist_name").val();sendMsg("editpl"+pl_name);}); </script>'
-        except:        
-             renderStr = ""
-        self.render("index.html",
-                playlist = str(renderStr),
-                user = "test",
-                player_ip = "test"
-            )
-        
-    def post(self):
-        self.redirect("/")
-
-
-        """Get songs list display to main site"""
-    def set_render_str(self,renderString):
-        self.renderStr = renderString
-
+# post method for get file_name_list from user and update playlist 
 
 class EditPlaylistHandler(tornado.web.RequestHandler):
 
@@ -206,6 +189,8 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
             self.play.run_command("delete_file_pl",pl_name)
         self.redirect("/")
 
+# get playlist's files and return to user
+
 class EditPlaylist():
     def __init__(self,player_ip,player_id):
         self.play = Player.Player(player_ip)
@@ -218,6 +203,7 @@ class EditPlaylist():
         song_list = self.play.run_command('get_playlist_songs',playlist_name,self.player_id)       
         return song_list
 
+# post method use for get file from user and upload to player
 
 class FileManagment(tornado.web.RequestHandler):
     def post(self): #upload from host to server
@@ -226,6 +212,8 @@ class FileManagment(tornado.web.RequestHandler):
         self.player = Player.Player(player_ip)
         self.player.add_file(fileinfo)
         self.redirect("/account")
+
+# return now playing song to user
 
 class SongAPIHandler(BaseHandler):
     @tornado.web.authenticated
@@ -244,6 +232,8 @@ class SongAPIHandler(BaseHandler):
             status = player_temp.player_status()
             self.write(status)
 
+# return user's players information
+
 class PlayerAPIHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -258,9 +248,11 @@ class PlayerAPIHandler(BaseHandler):
             player_json = json.dumps(player_temp,default = jdefault)
             self.write(player_json)
 
+# websocket handler
+# open and close websocket between client and server
+# get command from user and run process
 
-
-class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
+class WebSocketHandler(tornado.websocket.WebSocketHandler): 
     def open(self):
         clients.append(self)
         print 'new connection'
@@ -269,7 +261,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.pl_temp = ""
     
     def on_message(self, message):
-        #print 'message received %s' % message
         self.write_message('message received %s' % message)
         if message.find("open") == 0:
             self.play = Player.Player(message[5:])
@@ -329,7 +320,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         
         clients.remove(self)
         print 'connection closed' 
-
 
 
 class AddPlayerHandler(BaseHandler):
@@ -403,6 +393,8 @@ def jdefault(o):
         return list(o)
     return o.__dict__
 
+
+# run server and set SendStatus() period (1 sec)
 def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application(),ssl_options = {
