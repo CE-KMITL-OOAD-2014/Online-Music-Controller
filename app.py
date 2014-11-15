@@ -99,7 +99,6 @@ class AccountHandler(BaseHandler):
         if not player:
             self.render("account.html",page_title = "Accout Manager",user="test",player_ip = "no player",dest ="/",brand = "Controller")
         else:
-            print player["ip"]
             self.render("account.html",page_title = "Accout Manager",user = "test",player_ip = player["ip"],dest ="/",brand = "Controller")
 
 
@@ -202,7 +201,6 @@ class EditPlaylistHandler(tornado.web.RequestHandler):
             song_list =  self.request.arguments['selected_song']
             self.play.run_command("delete_file_pl",pl_name)
             for song in song_list:
-                print song
                 self.play.run_command("add_file_to_pl",song,pl_name)
         except:
             self.play.run_command("delete_file_pl",pl_name)
@@ -258,7 +256,6 @@ class PlayerAPIHandler(BaseHandler):
             self.redirect("/")
         else:
             player_json = json.dumps(player_temp,default = jdefault)
-            #print file_json
             self.write(player_json)
 
 
@@ -272,7 +269,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
         self.pl_temp = ""
     
     def on_message(self, message):
-        print 'message received %s' % message
+        #print 'message received %s' % message
         self.write_message('message received %s' % message)
         if message.find("open") == 0:
             self.play = Player.Player(message[5:])
@@ -320,7 +317,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler): # Data Managment
             playlist_temp.update_filelist(self.play.get_address())
             self.files = playlist_temp.get_filelist()
             file_json = json.dumps(self.files,default = jdefault)
-            #print file_json
             self.write_message(file_json)
         
         elif message.find("#play") != 0:

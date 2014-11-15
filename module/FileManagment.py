@@ -11,8 +11,6 @@ class FileManagment():
         location = cwd.communicate()[0]
         newline_location = location.find("\n")
         location = location[:newline_location]+"/upload/"
-        # fileinfo = self.request.files['filearg'][0]
-        #print "fileinfo is", fileinfo
         fname = fileinfo['filename']
         print location + fname
         try:
@@ -28,8 +26,6 @@ class FileManagment():
        
     def remove(self,file_name,player_address):
         try:
-            print player_address
-            print file_name
             os.system("sshpass -p raspberry ssh -o StrictHostKeyChecking=no pi@"+player_address+" 'rm /home/pi/song/"+file_name+"'")
         except :
             print "remove is bug"

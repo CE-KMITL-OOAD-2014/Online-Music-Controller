@@ -6,11 +6,7 @@ class GetPlaylist():
         self.repo = PlaylistRepo()
         self.playlists = []
 
-
-		# 	return returnPlaylist
-		# except :
-		# 	return "no playlist"
-		
+    
 
     def get_playlist(self,player_id):
         playlist_temp = self.repo.get_all(player_id)
@@ -19,8 +15,6 @@ class GetPlaylist():
             self.playlists.append(self.playlist_temp)
         return self.playlists
 
-
-    
 
     def add_playlist(self,playlist_name,player_id):
       pl_repo = PlaylistRepo()

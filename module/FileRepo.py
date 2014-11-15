@@ -17,8 +17,6 @@ class FileRepo(object):
             print "addbug"
 
     def delete_from_playlist(self,player_ip,playlist_name):
-        print "player_ip"+player_ip
-        print "playlist"+playlist_name
         try:
             self.db.execute(
                 "DELETE FROM file WHERE player_ip=%s and playlist=%s",player_ip,playlist_name
@@ -28,8 +26,6 @@ class FileRepo(object):
 
 
     def get_from_playlist(self,player_ip,playlist_name):
-        print player_ip
-        print playlist_name
         try:
             return self.db.query("SELECT * FROM file WHERE player_ip = %s AND playlist = %s",player_ip,playlist_name)
         except Exception:
