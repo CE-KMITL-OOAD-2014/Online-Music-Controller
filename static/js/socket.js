@@ -23,6 +23,10 @@ var wsocket = new WebSocket("wss://161.246.5.31:443/ws");
             $("#edit_song_list_form").attr("method","post");
           }
 
+          if(message.data == "error"){
+            window.location = "https://161.246.5.31/setplayer";
+          }
+
           else if(message.data.substr(0,6)=="status"){
             $("#status").val(message.data.substr(6,message.data.length));
           }

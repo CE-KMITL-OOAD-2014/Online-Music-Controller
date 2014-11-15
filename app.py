@@ -40,7 +40,8 @@ class Application(tornado.web.Application):
             (r"/nowplay",SongAPIHandler),
             (r"/listplayer",PlayerAPIHandler),
             (r"/addplayer",AddPlayerHandler),
-            (r"/remove",RemoveHandler)
+            (r"/remove",RemoveHandler),
+
         ]
         settings = dict(
             blog_title=u"Tornado Blog",
@@ -268,7 +269,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             try:
                 self.play.connect()
             except:
-                pass
+                self.write_message('error')
 
         elif message.find("#id: ") == 0:
             self.play.set_player_id(message[5:])
