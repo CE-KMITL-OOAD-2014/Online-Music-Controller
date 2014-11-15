@@ -269,7 +269,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             try:
                 self.play.connect()
             except:
-                self.write_message('error')
+                self.write_message('error')  #if player not online  send msg to redirect to setplayer
 
         elif message.find("#id: ") == 0:
             self.play.set_player_id(message[5:])
